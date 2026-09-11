@@ -1,18 +1,19 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#define LED_RED  15
+#define LED_BLUE 16
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  digitalWrite(LED_RED, HIGH);
+  digitalWrite(LED_BLUE, LOW);
+  delay(500);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  digitalWrite(LED_RED, LOW);
+  digitalWrite(LED_BLUE, HIGH);
+  delay(500);
 }
