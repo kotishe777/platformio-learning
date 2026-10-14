@@ -1,0 +1,12 @@
+# Build output
+.pio
+.cache
+compile_commands.json
+
+# Generated ESP-IDF configs (recreated from sdkconfig.defaults on build)
+sdkconfig
+sdkconfig.esp32s3
+sdkconfig.old
+
+# Templates
+.gitignore.optional
