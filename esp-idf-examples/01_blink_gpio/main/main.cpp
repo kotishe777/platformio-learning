@@ -1,3 +1,33 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 01: blink an external LED on GPIO4.
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * GPIO4 is a push-pull output; LED is ON 500 ms / OFF 500 ms (period ≈ 1 s).
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ
+ * ============================================================================
+ *   1. ESP32 GPIO4                -> резистор 220–330 Ом (один кінець)
+ *   2. Резистор (другий кінець)   -> LED довга ніжка (анод, «+»)
+ *   3. LED коротка ніжка (катод)  -> ESP32 GND
+ *   4. ESP32 USB                  -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - Монітор: стартовий лог ESP-IDF і рядок "Calling app_main()".
+ *   - LED світиться ≈ 0.5 с і гасне ≈ 0.5 с (повний цикл ≈ 1 с).
+ *   - Експеримент: half_period_ms = 1000 -> повний цикл ≈ 2 с.
+ *
+ * Arduino -> ESP-IDF:
+ *   pinMode()      -> gpio_config(&config)
+ *   digitalWrite() -> gpio_set_level(gpio, level)
+ *   delay(ms)      -> vTaskDelay(pdMS_TO_TICKS(ms))   (1 tick = 10 ms)
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/01_blink_gpio -t upload -t monitor
+ */
+
 #include <cstdint>
 
 #include "driver/gpio.h"

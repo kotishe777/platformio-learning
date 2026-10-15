@@ -1,3 +1,36 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 10: LED brightness steps with LEDC PWM.
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * LEDC_TIMER_0: 5 kHz, 10-bit (0..1023) -> LEDC_CHANNEL_0 -> GPIO4.
+ * Duty steps 0 / 255 / 511 / 767 / 1023 every 100 ms (cycle ≈ 0.5 s).
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ
+ * ============================================================================
+ *   1. ESP32 GPIO4               -> резистор 220–330 Ом -> LED анод (довга ніжка)
+ *   2. LED катод (коротка)       -> GND
+ *   3. ESP32 USB                 -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - LED сходинками: 0% -> 25% -> 50% -> 75% -> ~100% -> знову 0%.
+ *   - Мерехтіння не видно (5000 періодів за секунду — швидше за око).
+ *   - Експеримент: vTaskDelay(pdMS_TO_TICKS(100)) -> 500 мс: сходинки видно краще.
+ *   - (Аналізатор) період 200 мкс; HIGH ≈ 0 / 50 / 100 / 150 / 200 мкс.
+ *
+ * Той самий LEDC, що в Servo 03 (урок 2.5), але інший сенс ширини імпульсу:
+ *   серво — ширина = КУТ («лист з адресою», 50 Гц);
+ *   LED   — частка часу HIGH = ЯСКРАВІСТЬ («кран зі струмом», 5 кГц).
+ *
+ * Arduino -> ESP-IDF:
+ *   analogWrite() / ledcWrite() -> ledc_set_duty() + ledc_update_duty()
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/10_pwm_ledc_led -t upload -t monitor
+ */
+
 #include <cstdint>
 #include <cinttypes>
 #include "esp_err.h"
@@ -35,19 +68,17 @@ extern "C" void app_main()
     pwm_channel_config.duty = 0; // Початково вихід LOW.
     pwm_channel_config.hpoint = 0; // HIGH починається на початку періоду.
     ESP_ERROR_CHECK(ledc_channel_config(&pwm_channel_config));
-    // Апаратний LEDC генерує імпульси і під час task delay; це не програмний PWM.
+    // ТИМЧАСОВИЙ ЕКСПЕРИМЕНТ: рівні, підібрані під нелінійний зір,
+    // пауза 1 с і друк поточного рівня в монітор.
+    // Оригінал: 5 рівних кроків (0/255/511/767/1023) по 100 мс.
+    constexpr uint32_t levels[] = {0, 8, 32, 128, 512, 1023};
     while (true) {
-        // Рівні 0, 255, 511, 767, 1023 після цілочисельного ділення;
-        // duty — кількість кроків HIGH, не відсотки.
-        for (uint32_t level = 0; level <= 4; ++level) {
-            const uint32_t duty = level * duty_max / 4;
-            // set_duty(mode, channel, duty) готує нове значення; update_duty застосовує його.
-            // Обидва повертають esp_err_t. На відміну від analogWrite, потрібні два явні кроки.
+        for (uint32_t duty : levels) {
             ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty));
             ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0));
-            // vTaskDelay приймає ticks; pdMS_TO_TICKS переводить ms за частотою RTOS.
-            // На відміну від delay(ms), одиниця аргументу тут — tick; інші задачі можуть працювати.
-            vTaskDelay(pdMS_TO_TICKS(100));
+            // PRIu32 — правильний формат для uint32_t у printf/ESP_LOG; %% друкує знак %.
+            ESP_LOGI("pwm", "duty=%" PRIu32 " (~%" PRIu32 "%%)", duty, duty * 100 / duty_max);
+            vTaskDelay(pdMS_TO_TICKS(1000));
         }
     }
 }

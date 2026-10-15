@@ -1,3 +1,41 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 04: debounced button toggles LED.
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * GPIO5 input with internal pull-up (active LOW); LED on GPIO4.
+ * A new button state is accepted only after 30 ms without changes;
+ * each confirmed press toggles the LED (hold or release does nothing).
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ (та сама, що в 03)
+ * ============================================================================
+ *   1. ESP32 GPIO4               -> резистор 220–330 Ом -> LED анод (довга ніжка)
+ *   2. LED катод (коротка)       -> GND
+ *   3. ESP32 GPIO5               -> кнопка (контакт A)
+ *   4. Кнопка (контакт B)        -> GND   (4-ніжкова кнопка: контакти по діагоналі)
+ *   5. ESP32 USB                 -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND     LED
+ *   GPIO5 ---[кнопка]-------- GND      (pull-up — всередині ESP32)
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - Натиснули й відпустили -> LED перемкнувся (ON <-> OFF), як вимикач світла.
+ *   - Тримаємо кнопку        -> LED перемкнувся лише ОДИН раз.
+ *   - 10 натискань           -> рівно 10 перемикань (брязкіт відфільтровано).
+ *   - Експеримент: debounce_us = 200 * 1000 -> повільніша реакція,
+ *     дуже швидкі клацання ігноруються.
+ *
+ * Ідея фільтра: «зачекай 30 мс тиші». Кожна зміна raw-рівня перезапускає
+ * відлік (changed_at_us); лише стан без змін 30 мс стає stable_pressed.
+ *
+ * Arduino -> ESP-IDF:
+ *   micros()  -> esp_timer_get_time()   (int64_t, мікросекунди)
+ *   delay(10) -> vTaskDelay(1)          (1 tick = 10 ms; pdMS_TO_TICKS(1) = 0!)
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/04_button_debounce -t upload -t monitor
+ */
+
 #include <cstdint>
 
 #include "driver/gpio.h"

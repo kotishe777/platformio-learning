@@ -1,3 +1,37 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 03: button polling (GPIO5) controls LED (GPIO4).
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * GPIO5 is an input with the internal pull-up; button to GND is active LOW.
+ * Every 20 ms the button is read: pressed -> LED ON, released -> LED OFF.
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ
+ * ============================================================================
+ *   1. ESP32 GPIO4               -> резистор 220–330 Ом -> LED анод (довга ніжка)
+ *   2. LED катод (коротка)       -> GND
+ *   3. ESP32 GPIO5               -> кнопка (контакт A)
+ *   4. Кнопка (контакт B)        -> GND
+ *   5. ESP32 USB                 -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND     LED
+ *   GPIO5 ---[кнопка]-------- GND      (pull-up — всередині ESP32, резистор не потрібен)
+ *
+ *   4-ніжкова кнопка: брати контакти ПО ДІАГОНАЛІ — вони з'єднуються лише при натисканні.
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - Кнопка відпущена -> LED не світить (pull-up тримає HIGH = 1).
+ *   - Кнопку тримаємо  -> LED світить     (кнопка замикає на GND = 0).
+ *   - Експеримент: poll_interval_ms = 200 -> помітна затримка, швидкі клацання губляться.
+ *
+ * Arduino -> ESP-IDF:
+ *   pinMode(pin, INPUT_PULLUP) -> gpio_config() з GPIO_MODE_INPUT + GPIO_PULLUP_ENABLE
+ *   digitalRead(pin)           -> gpio_get_level(gpio)
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/03_button_polling -t upload -t monitor
+ */
+
 #include <cstdint>
 
 #include "driver/gpio.h"

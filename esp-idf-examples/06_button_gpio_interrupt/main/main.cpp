@@ -1,3 +1,43 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 06: button via GPIO interrupt toggles LED.
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * GPIO5 input with pull-up raises an interrupt on the falling edge (press).
+ * The ISR only sets an atomic flag; app_main consumes it and toggles LED on GPIO4.
+ * No debounce here: contact bounce may occasionally cause extra toggles.
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ (та сама, що в 03/04)
+ * ============================================================================
+ *   1. ESP32 GPIO4               -> резистор 220–330 Ом -> LED анод (довга ніжка)
+ *   2. LED катод (коротка)       -> GND
+ *   3. ESP32 GPIO5               -> кнопка (контакт A)
+ *   4. Кнопка (контакт B)        -> GND   (4-ніжкова кнопка: контакти по діагоналі)
+ *   5. ESP32 USB                 -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND     LED
+ *   GPIO5 ---[кнопка]-------- GND      (pull-up — всередині ESP32)
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - Натискання -> LED перемикається в момент НАТИСКАННЯ (спадний фронт).
+ *   - Утримання  -> нічого (реакція лише на фронт, не на рівень).
+ *   - 20 натискань -> переважно 20 перемикань; зрідка збій через брязкіт.
+ *   - Експеримент: GPIO_INTR_NEGEDGE -> GPIO_INTR_POSEDGE:
+ *     LED перемикається при ВІДПУСКАННІ кнопки.
+ *
+ * Опитування (03/04) vs переривання (06):
+ *   опитування = самому ходити до дверей; переривання = дзвінок у двері.
+ * ISR — лише «підняти прапорець»; уся робота з LED — в app_main.
+ *
+ * Arduino -> ESP-IDF:
+ *   attachInterrupt(pin, isr, FALLING) ->
+ *     intr_type = GPIO_INTR_NEGEDGE + gpio_install_isr_service(0)
+ *     + gpio_isr_handler_add(pin, isr, nullptr)
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/06_button_gpio_interrupt -t upload -t monitor
+ */
+
 #include <cstdint>
 #include <cinttypes>
 #include "esp_err.h"

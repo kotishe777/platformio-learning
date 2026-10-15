@@ -1,3 +1,39 @@
+/*
+ * Lesson 2.6 — ESP-IDF example 05: two LEDs blink with independent intervals.
+ * Board: ESP32-S3 DevKitC-1 (N16R8), ESP-IDF 5.5 via PlatformIO (espressif32@6.12.0).
+ * LED1 (GPIO4) toggles every 200 ms, LED2 (GPIO6) every 700 ms.
+ * No waiting for intervals: the loop reads esp_timer_get_time() and checks
+ * elapsed time for each LED separately (like millis() in Arduino).
+ *
+ * ============================================================================
+ * СХЕМА ПІДКЛЮЧЕННЯ (та сама, що в 02)
+ * ============================================================================
+ *   1. ESP32 GPIO4               -> резистор 220–330 Ом -> LED1 анод (довга ніжка)
+ *   2. LED1 катод (коротка)      -> GND
+ *   3. ESP32 GPIO6               -> ОКРЕМИЙ резистор 220–330 Ом -> LED2 анод
+ *   4. LED2 катод (коротка)      -> GND
+ *   5. ESP32 USB                 -> комп'ютер
+ *
+ *   GPIO4 ---[220 Ом]---|>|--- GND     LED1 (швидкий, 200 мс)
+ *   GPIO6 ---[220 Ом]---|>|--- GND     LED2 (повільний, 700 мс)
+ *
+ * ============================================================================
+ * ЩО ПЕРЕВІРИТИ
+ * ============================================================================
+ *   - LED1: ≈ 2.5 блимання/с (цикл 400 мс); LED2: ≈ 0.7 блимання/с (цикл 1400 мс).
+ *   - За 10 с: LED1 засвітиться ≈ 25 разів, LED2 ≈ 7 разів.
+ *   - Експеримент: second_interval_us = 1000 * 1000 -> LED2 цикл ≈ 2 с,
+ *     LED1 свій ритм НЕ змінює (ритми незалежні).
+ *
+ * Ідея: «кухар з двома таймерами» — не чекати, а поглядати на годинник.
+ * Два окремі if (не else if): обидва LED можуть перемкнутися за один прохід.
+ *
+ * Arduino -> ESP-IDF:
+ *   millis() / micros() -> esp_timer_get_time()   (int64_t, мікросекунди)
+ * 
+ * ~/.platformio/penv/bin/pio run -d esp-idf-examples/05_non_blocking_blink -t upload -t monitor
+ */
+
 #include <cstdint>
 
 #include "driver/gpio.h"
