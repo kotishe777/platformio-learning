@@ -1,69 +1,38 @@
 /*
- * Module 3.1 hometask — LDR light sensor with SMA filter and hysteresis
- * Board: ESP32-S3 DevKitC-1, framework ESP-IDF
- * LDR divider: 3V3 -> LDR -> GPIO7 (ADC1_CH6) -> 10k -> GND
- * LED: GPIO15 -> 330R -> LED -> GND
- * ADC oneshot read every 20 ms, SMA over 16 samples (320 ms window).
- * Dark: avg < 1000 mV -> LED on. Light: avg > 1400 mV -> LED off.
- * Between thresholds the LED keeps its state (hysteresis, no flicker).
+ * Module 3.2 hometask — ADC calibration: manual formula vs calibrated driver
+ * Board: ESP32-S3 DevKitC-1, framework ESP-IDF 5.5
+ * Potentiometer 10k: 3V3 -> pot -> GND, wiper -> GPIO7 (ADC1_CH6)
+ * ADC oneshot, 12 bit, attenuation 12 dB, read every 100 ms (average of 8)
+ * U_manual = RAW * 3300 / 4095 mV, U_cali = adc_cali_raw_to_voltage()
+ * Error(%) = (U_manual - U_cali) / U_cali * 100
+ * Output: table in serial console, header repeated every 20 rows
  */
 #include <cstdint>
+#include <cstdio>
 
-#include "driver/gpio.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 #include "esp_adc/adc_oneshot.h"
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 struct Config {
-  static constexpr adc_unit_t    adcUnit        = ADC_UNIT_1;
-  static constexpr adc_channel_t adcChannel     = ADC_CHANNEL_6;
-  static constexpr adc_atten_t   adcAtten       = ADC_ATTEN_DB_12;
-  static constexpr gpio_num_t    ledPin         = GPIO_NUM_15;
-  static constexpr uint32_t      windowSize     = 16;
-  static constexpr uint32_t      samplePeriodMs = 20;
-  static constexpr uint32_t      logPeriodMs    = 500;
-  static constexpr uint32_t      logEvery       = logPeriodMs / samplePeriodMs;
-  static constexpr int           darkMv         = 1000;
-  static constexpr int           lightMv        = 1400;
-  static constexpr int           midMv          = (darkMv + lightMv) / 2;
+  static constexpr adc_unit_t     adcUnit        = ADC_UNIT_1;
+  static constexpr adc_channel_t  adcChannel     = ADC_CHANNEL_6;
+  static constexpr adc_atten_t    adcAtten       = ADC_ATTEN_DB_12;
+  static constexpr adc_bitwidth_t adcBitwidth    = ADC_BITWIDTH_12;
+  static constexpr uint32_t       vrefNominalMv  = 1100;
+  static constexpr float          vmaxMv         = 3300.0f;
+  static constexpr int            dmax           = 4095;
+  static constexpr uint32_t       samplesPerRead = 8;
+  static constexpr uint32_t       periodMs       = 100;
+  static constexpr uint32_t       rowsPerHeader  = 20;
 };
 
-static_assert(Config::windowSize > 0, "SMA window must not be empty");
-static_assert(Config::darkMv < Config::lightMv, "Dark threshold must be below light threshold");
-static_assert(Config::logEvery > 0, "Log period must be at least one sample period");
+static_assert(Config::samplesPerRead > 0, "At least one sample per reading");
+static_assert(Config::rowsPerHeader > 0, "Header period must not be zero");
 
 namespace {
-
-constexpr const char* tag = "sma";
-
-enum class LightState : uint8_t { Unknown, Dark, Light };
-
-class MovingAverage {
- public:
-  int add(int sample) {
-    sum_            -= buffer_[index_];
-    buffer_[index_]  = sample;
-    sum_            += sample;
-    index_           = (index_ + 1) % Config::windowSize;
-    if (count_ < Config::windowSize) {
-      ++count_;
-    }
-    return static_cast<int>(sum_ / static_cast<int32_t>(count_));
-  }
-
-  bool full() const {
-    return count_ == Config::windowSize;
-  }
-
- private:
-  int      buffer_[Config::windowSize]{};
-  int32_t  sum_   = 0;
-  uint32_t index_ = 0;
-  uint32_t count_ = 0;
-};
 
 adc_oneshot_unit_handle_t initAdc() {
   adc_oneshot_unit_init_cfg_t unitCfg{};
@@ -75,7 +44,7 @@ adc_oneshot_unit_handle_t initAdc() {
 
   adc_oneshot_chan_cfg_t chanCfg{};
   chanCfg.atten    = Config::adcAtten;
-  chanCfg.bitwidth = ADC_BITWIDTH_DEFAULT;
+  chanCfg.bitwidth = Config::adcBitwidth;
   ESP_ERROR_CHECK(adc_oneshot_config_channel(handle, Config::adcChannel, &chanCfg));
   return handle;
 }
@@ -85,43 +54,41 @@ adc_cali_handle_t initCalibration() {
   caliCfg.unit_id  = Config::adcUnit;
   caliCfg.chan     = Config::adcChannel;
   caliCfg.atten    = Config::adcAtten;
-  caliCfg.bitwidth = ADC_BITWIDTH_DEFAULT;
+  caliCfg.bitwidth = Config::adcBitwidth;
 
   adc_cali_handle_t handle = nullptr;
   ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&caliCfg, &handle));
   return handle;
 }
 
-void initLed() {
-  gpio_config_t io{};
-  io.pin_bit_mask = 1ULL << Config::ledPin;
-  io.mode         = GPIO_MODE_OUTPUT;
-  io.pull_up_en   = GPIO_PULLUP_DISABLE;
-  io.pull_down_en = GPIO_PULLDOWN_DISABLE;
-  io.intr_type    = GPIO_INTR_DISABLE;
-  ESP_ERROR_CHECK(gpio_config(&io));
-  gpio_set_level(Config::ledPin, 0);
+int readAverageRaw(adc_oneshot_unit_handle_t adc) {
+  int32_t sum = 0;
+  for (uint32_t i = 0; i < Config::samplesPerRead; ++i) {
+    int raw = 0;
+    ESP_ERROR_CHECK(adc_oneshot_read(adc, Config::adcChannel, &raw));
+    sum += raw;
+  }
+  return static_cast<int>(sum / static_cast<int32_t>(Config::samplesPerRead));
 }
 
-LightState nextState(LightState current, int avgMv) {
-  if (avgMv < Config::darkMv) {
-    return LightState::Dark;
-  }
-  if (avgMv > Config::lightMv) {
-    return LightState::Light;
-  }
-  if (current == LightState::Unknown) {
-    return avgMv < Config::midMv ? LightState::Dark : LightState::Light;
-  }
-  return current;
+float manualMv(int raw) {
+  return static_cast<float>(raw) * Config::vmaxMv / static_cast<float>(Config::dmax);
 }
 
-const char* toString(LightState state) {
-  switch (state) {
-    case LightState::Dark:  return "DARK";
-    case LightState::Light: return "LIGHT";
-    default:                return "UNKNOWN";
-  }
+void printSettings() {
+  printf("\nADC settings\n");
+  printf("  Unit / channel : ADC1 / CH6 (GPIO7)\n");
+  printf("  Resolution     : 12 bit, RAW 0..%d\n", Config::dmax);
+  printf("  Attenuation    : 12 dB, about 0..3100 mV\n");
+  printf("  Vref nominal   : %u mV\n", static_cast<unsigned>(Config::vrefNominalMv));
+  printf("  Manual formula : U = RAW * %.0f / %d mV\n", Config::vmaxMv, Config::dmax);
+  printf("  Manual LSB     : %.3f mV\n", Config::vmaxMv / (Config::dmax + 1));
+  printf("  Calibration    : curve fitting (eFuse data)\n\n");
+}
+
+void printHeader() {
+  printf("%5s %14s %12s %10s\n", "RAW", "U_manual(mV)", "U_cali(mV)", "Error(%)");
+  printf("--------------------------------------------\n");
 }
 
 }  // namespace
@@ -129,40 +96,31 @@ const char* toString(LightState state) {
 extern "C" void app_main() {
   const adc_oneshot_unit_handle_t adc  = initAdc();
   const adc_cali_handle_t         cali = initCalibration();
-  initLed();
 
-  ESP_LOGI(tag, "Ready: dark < %d mV, light > %d mV, window %u samples",
-           Config::darkMv, Config::lightMv, static_cast<unsigned>(Config::windowSize));
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  printSettings();
 
-  MovingAverage sma;
-  LightState    state       = LightState::Unknown;
-  uint32_t      sampleCount = 0;
-  TickType_t    lastWake    = xTaskGetTickCount();
+  uint32_t   row      = 0;
+  TickType_t lastWake = xTaskGetTickCount();
 
   while (true) {
-    int raw = 0;
-    int mv  = 0;
-    ESP_ERROR_CHECK(adc_oneshot_read(adc, Config::adcChannel, &raw));
-    ESP_ERROR_CHECK(adc_cali_raw_to_voltage(cali, raw, &mv));
-
-    const int avg = sma.add(mv);
-    ++sampleCount;
-
-    if (sma.full()) {
-      const LightState next = nextState(state, avg);
-      if (next != state) {
-        state = next;
-        gpio_set_level(Config::ledPin, state == LightState::Dark ? 1 : 0);
-        ESP_LOGI(tag, "-> %s (avg=%d mV), LED %s",
-                 toString(state), avg, state == LightState::Dark ? "ON" : "OFF");
-      }
+    if (row % Config::rowsPerHeader == 0) {
+      printHeader();
     }
 
-    if (sampleCount % Config::logEvery == 0) {
-      ESP_LOGI(tag, "raw=%4d mv=%4d avg=%4d state=%s",
-               raw, mv, avg, toString(state));
+    const int raw    = readAverageRaw(adc);
+    int       caliMv = 0;
+    ESP_ERROR_CHECK(adc_cali_raw_to_voltage(cali, raw, &caliMv));
+    const float manual = manualMv(raw);
+
+    if (caliMv > 0) {
+      const float error = (manual - caliMv) / caliMv * 100.0f;
+      printf("%5d %14.1f %12d %10.2f\n", raw, manual, caliMv, error);
+    } else {
+      printf("%5d %14.1f %12d %10s\n", raw, manual, caliMv, "n/a");
     }
 
-    xTaskDelayUntil(&lastWake, pdMS_TO_TICKS(Config::samplePeriodMs));
+    ++row;
+    xTaskDelayUntil(&lastWake, pdMS_TO_TICKS(Config::periodMs));
   }
 }
