@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 14mm 13mm 16mm 13mm; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html,body { margin:0; padding:0; }
+  body { font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif; color:#2b2f36; font-size:11px; line-height:1.55; }
+
+  /* COVER */
+  .cover { min-height:252mm; border-radius:20px;
+    background:linear-gradient(140deg,#12233f 0%, #223a63 46%, #2f5a4a 100%);
+    color:#fff; text-align:center; padding:60px 50px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    page-break-after:always; }
+  .cover .emoji { font-size:46px; margin-bottom:14px; }
+  .cover .module { letter-spacing:5px; font-size:13px; font-weight:600; color:#cfe8dd; margin-bottom:26px; }
+  .cover h1 { font-size:37px; line-height:1.12; margin:0 0 26px 0; font-weight:800;
+    color:#ffd166; letter-spacing:-.5px; text-shadow:0 2px 12px rgba(0,0,0,.25); }
+  .cover .sub { font-size:15px; max-width:640px; color:#eef; margin-bottom:30px; line-height:1.5; }
+  .cover .pills { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .cover .pill { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.35);
+    border-radius:999px; padding:8px 18px; font-size:12px; color:#fff; }
+  .cover .foot { margin-top:60px; font-size:11px; color:#ddefe6; opacity:.85; }
+
+  /* BAND */
+  .band { background:linear-gradient(100deg,#1f6f57,#2f9c78); color:#fff; border-radius:16px;
+    padding:16px 22px; display:flex; align-items:center; gap:16px; margin:6px 0 18px 0; }
+  .band .num { font-size:38px; font-weight:800; color:rgba(255,255,255,.45); line-height:1; }
+  .band .ttl { font-size:19px; font-weight:800; line-height:1.15; }
+  .band .ttl small { display:block; font-weight:600; font-size:11px; letter-spacing:1.5px; color:#d3f0e6; margin-top:3px; }
+  .sec { page-break-before:always; }
+  .lead { color:#56606b; font-size:11px; margin:-8px 4px 16px 4px; }
+
+  /* CARD */
+  .card { background:#fff; border:1px solid #e7ece9; border-left:6px solid #2f9c78;
+    border-radius:12px; padding:14px 18px 16px 18px; margin-bottom:16px;
+    box-shadow:0 2px 6px rgba(40,60,50,.05); break-inside:avoid; }
+  .card.q { border-left-color:#6b4bc7; }
+  .slidehd { margin-bottom:8px; overflow:hidden; }
+  .sbadge { background:#1f6f57; color:#fff; border-radius:999px; padding:3px 11px;
+    font-size:10px; font-weight:700; margin-right:8px; white-space:nowrap; }
+  .stitle { color:#153a2c; font-size:14.5px; font-weight:800; }
+  .timep { background:#2f9c78; color:#fff; border-radius:999px; padding:2px 11px;
+    font-size:10px; font-weight:700; float:right; }
+
+  .chip { display:inline-block; color:#fff; border-radius:6px; padding:3px 10px;
+    font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; margin:10px 0 5px 0; }
+  .c-goal { background:#1f9d57; }
+  .c-code { background:#2f6fd6; }
+  .c-watch{ background:#0d8f8f; }
+  .c-task { background:#ef9b1f; }
+  .c-note { background:#c0392b; }
+  .c-why  { background:#6b4bc7; }
+
+  p.body { margin:4px 0 0 0; }
+  .watch { background:#e7f7f7; border:1px solid #c2e8e8; border-left:3px solid #0d8f8f; border-radius:8px; padding:8px 12px; color:#1e4a4a; }
+  .task  { background:#fff8e6; border:1px solid #f3e2b3; border-left:3px solid #ef9b1f; border-radius:8px; padding:8px 12px; color:#4a4133; }
+  .note  { background:#fdeceb; border:1px solid #f6cfcb; border-left:3px solid #c0392b; border-radius:8px; padding:8px 12px; color:#5a2b27; }
+  .why   { background:#f1edff; border:1px solid #ddd3f7; border-left:3px solid #6b4bc7; border-radius:8px; padding:8px 12px; color:#33285e; }
+
+  pre.code { background:#0f1f2e; color:#e6edf3; border-radius:8px; padding:12px 14px;
+    font-family:Consolas,"Courier New",monospace; font-size:10px; line-height:1.5;
+    white-space:pre; overflow-x:auto; margin:6px 0; border:1px solid #16324a; }
+  pre.code .cm { color:#6f8aa0; font-style:italic; }
+  pre.code .kw { color:#7fd1ff; }
+  pre.code .bad{ color:#ff9a9a; }
+  pre.code .ok { color:#8ee6b0; }
+  pre.code .vi { color:#c3b8ff; }
+  code.inl { background:#0f1f2e; color:#ffd166; border-radius:4px; padding:1px 6px;
+    font-family:Consolas,monospace; font-size:10px; }
+
+  table.tbl { width:100%; border-collapse:collapse; font-size:10.5px; margin:8px 0; }
+  table.tbl th { background:#1f6f57; color:#fff; text-align:left; padding:6px 9px; font-size:10px; }
+  table.tbl td { border-bottom:1px solid #e6ece9; padding:6px 9px; vertical-align:top; }
+  table.tbl tr:nth-child(even) td { background:#f5faf8; }
+
+  .wire { background:#0f1f2e; color:#9fe0c5; border-radius:8px; padding:12px 14px;
+    font-family:Consolas,monospace; font-size:11px; line-height:1.6; white-space:pre; margin:6px 0; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="emoji">📈🔢🌡️</div>
+  <div class="module">М О Д У Л Ь&nbsp;&nbsp;3.1&nbsp;&nbsp;·&nbsp;&nbsp;П Р А К Т И К У М&nbsp;&nbsp;·&nbsp;&nbsp;2 год</div>
+  <h1>Аналогові сигнали: як мікроконтролер<br>перетворює напругу з датчика на число?</h1>
+  <div class="sub">Практика на <b>ESP32</b> у чистому <b>ESP-IDF v5.5.4</b> (Espressif-IDE / Eclipse), без Arduino-обгортки. Фоторезистор (LDR) у
+  дільнику напруги, АЦП через новий API <code style="color:#ffd166">esp_adc/adc_oneshot.h</code>. Пройдемо весь шлях від «сирого» числа 0–4095
+  до вольтів і назад до фізичної величини: <b>дискретизацію</b>, <b>атенюацію входу</b>, <b>квантування</b>, <b>оверсемплінг</b> і <b>заводське
+  калібрування</b> через <code style="color:#ffd166">adc_cali</code>. У фіналі зберемо неблокуючий світловий сигналізатор з гістерезисом на
+  <code style="color:#ffd166">esp_timer_get_time()</code> — без жодного блокуючого <code style="color:#ffd166">vTaskDelay()</code> у логіці вимірювання.</div>
+  <div class="pills">
+    <div class="pill">📈 7 кроків + челенджі</div>
+    <div class="pill">🔢 дискретизація → квантування → кодування</div>
+    <div class="pill">🌡️ adc_oneshot · adc_cali · оверсемплінг</div>
+    <div class="pill">⚙️ бонус: STM32F411 у STM32CubeIDE</div>
+  </div>
+  <div class="foot">Практичний супровід до модуля 3.1 «Аналогові сигнали: як мікроконтролер перетворює напругу з датчика на число?» — ESP-IDF v5.5.4 (Eclipse) + бонус на STM32CubeIDE.</div>
+</div>
+
+<!-- ===================== 01 ПІДГОТОВКА ===================== -->
+<div class="band"><div class="num">01</div>
+  <div class="ttl">Підготовка: набір, схема, проєкт в Eclipse<small>15 ХВИЛИН · ЗБИРАЄМО ТА ПЕРЕВІРЯЄМО</small></div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 0</span><span class="stitle">Твій набір і монтаж на макетній платі</span><span class="timep">⏱ 15 хв</span></div>
+  <p class="body"><b>Що на столі:</b> плата <b>ESP32</b> (будь-яка devkit-плата), макетна плата, <b>фоторезистор (LDR)</b> + резистор <b>10 кОм</b>
+  (дільник напруги), <b>світлодіод</b> + <b>резистор 220–330 Ом</b>, мультиметр, дроти, USB, Espressif-IDE (Eclipse) на базі <b>ESP-IDF v5.5.4</b>.</p>
+  <div class="chip c-why">Ідея всього уроку одним реченням</div>
+  <div class="why"><b>АЦП — це міст між аналоговим і цифровим світом.</b> Фоторезистор дає неперервну напругу, яка плавно змінюється від темряви до світла. Мікроконтролер
+  же розуміє лише числа. Сьогодні відчуємо руками всі три етапи цього перетворення: <b>дискретизацію</b> (коли читаємо), <b>квантування</b> (на скільки рівнів ділимо
+  напругу) і <b>кодування</b> (яке число зрештою отримує програма) — працюючи безпосередньо з апаратним API ESP-IDF, без жодних прихованих Arduino-обгорток.</div>
+  <div class="chip c-note">Як зібрати дільник напруги з фоторезистором</div>
+  <div class="note">Схема: <b>3.3V → LDR → (вузол з ADC-піном) → резистор 10 кОм → GND.</b> Це класичний <b>дільник напруги</b>: коли світло яскравіше, опір LDR
+  <b>падає</b>, і напруга у вузлі (яку читає АЦП) <b>зростає</b>. У темряві — навпаки, опір LDR росте, і напруга у вузлі падає ближче до 0V. Резистор 10 кОм — це
+  «пара» для типового LDR (темновий опір — сотні кОм, на світлі — одиниці кОм).</div>
+  <div class="chip c-note">Як під'єднати світлодіод (щоб не спалити)</div>
+  <div class="note">Світлодіод має полярність: <b>довша ніжка — анод (+)</b>, коротша — <b>катод (−)</b>. Схема: <b>GPIO → резистор 220–330 Ом → анод LED → катод → GND</b>.
+  Резистор <b>обов'язковий</b>. Струм малий (~5–10 мА), тож LED можна живити прямо з піна.</div>
+  <div class="chip c-code">🔌 Пінаут проєкту — одна таблиця на весь урок</div>
+  <table class="tbl">
+    <tr><th>Вивід ESP32</th><th>Куди йде</th><th>У якому кроці</th></tr>
+    <tr><td><code class="inl">GPIO34</code></td><td>вузол дільника: <b>LDR</b> (до 3.3V) і <b>резистор 10 кОм</b> (до GND) — канал <b>ADC1_CHANNEL_6</b></td><td>усі кроки</td></tr>
+    <tr><td><code class="inl">GPIO5</code></td><td>через <b>220 Ом</b> → анод <b>LED</b> (сигналізатор темряви), катод → <code class="inl">GND</code></td><td>Крок 6</td></tr>
+    <tr><td><code class="inl">GND</code></td><td>спільна «мінусова» шина макетки</td><td>усі кроки</td></tr>
+  </table>
+  <div class="watch"><b>Порада щодо ADC-пінів:</b> для датчика бери <b>лише піни ADC1</b> (на класичному ESP32 — <code class="inl">GPIO32–39</code>, для читання ми
+  адресуємо їх каналами <code class="inl">ADC_CHANNEL_0…7</code>; конкретно <code class="inl">GPIO34</code> у прикладах цього уроку відповідає
+  <code class="inl">ADC1_CHANNEL_6</code> на класичному ESP32-DevKitC — звір з даташитом своєї плати). <b>ADC2 конфліктує з Wi-Fi</b> і стає недоступним, щойно радіо
+  активне — тому для сенсорів завжди обирай ADC1.</div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Схема-скелет уроку</span></div>
+  <p class="body">Збираємо один раз на початку й не перезбираємо до кінця уроку — міняється лише код:</p>
+  <div class="wire">  3.3V ───[ LDR фоторезистор ]───┬─── GPIO34 (ADC1_CHANNEL_6)
+                                  │
+                             [ 10 кОм ]
+                                  │
+                                 GND
+
+  GPIO5 ──[220Ω]──▶|── GND         LED  (сигналізатор темряви, Крок 6)</div>
+  <div class="chip c-why">Чому саме так зручно</div>
+  <div class="why">Дільник напруги — найпростіший спосіб перетворити <b>зміну опору</b> на <b>зміну напруги</b>, яку вже вміє читати АЦП. Світлодіод у фіналі загориться,
+  коли стане темно — наочний доказ того, що ланцюжок «фізична величина → напруга → число → рішення програми» працює наскрізь.</div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Проєкт у Espressif-IDE (Eclipse) — файл за файлом</span></div>
+  <p class="body"><b>File → New → Espressif IDF Project</b>, назва проєкту <code class="inl">adc_lab</code>, target <code class="inl">esp32</code>. Головне —
+  правильно прописати залежності в <code class="inl">main/CMakeLists.txt</code>, інакше збірка впаде з <code class="inl">fatal error: esp_adc/adc_oneshot.h: No such
+  file or directory</code>:</p>
+  <pre class="code"><span class="cm">// main/CMakeLists.txt</span>
+idf_component_register(
+    SRCS "main.c"
+    INCLUDE_DIRS "."
+    REQUIRES driver esp_adc esp_timer log freertos
+)</pre>
+  <table class="tbl">
+    <tr><th>Компонент</th><th>Навіщо потрібен</th><th>Використовується в</th></tr>
+    <tr><td><code class="inl">driver</code></td><td><code class="inl">driver/gpio.h</code> — керування світлодіодом</td><td>усі кроки</td></tr>
+    <tr><td><code class="inl">esp_adc</code></td><td><code class="inl">esp_adc/adc_oneshot.h</code>, <code class="inl">esp_adc/adc_cali.h</code> — увесь АЦП-функціонал</td><td>усі кроки</td></tr>
+    <tr><td><code class="inl">esp_timer</code></td><td><code class="inl">esp_timer.h</code> — <code class="inl">esp_timer_get_time()</code> для неблокуючого розкладу</td><td>Кроки 2, 6</td></tr>
+    <tr><td><code class="inl">log</code></td><td><code class="inl">esp_log.h</code> — <code class="inl">ESP_LOGI()</code></td><td>усі кроки</td></tr>
+    <tr><td><code class="inl">freertos</code></td><td><code class="inl">freertos/FreeRTOS.h</code>, <code class="inl">freertos/task.h</code></td><td>усі кроки</td></tr>
+  </table>
+  <div class="chip c-watch">Три кнопки, якими користуємось увесь урок</div>
+  <div class="watch"><b>Build</b> (молоточок) — зібрати проєкт. <b>Flash</b> — залити прошивку. <b>Monitor</b> — відкрити UART-монітор (або обидва одразу через
+  <b>Run → Run As → ESP-IDF Application</b>). Перед першим запуском переконайся в <b>ESP-IDF: SDK Configuration Editor</b>, що обрано правильний Serial Port.</div>
+  <div class="chip c-watch">План практики · 2 години</div>
+  <table class="tbl">
+    <tr><th>Час</th><th>Крок</th><th>Що робимо</th><th>Концепція модуля</th></tr>
+    <tr><td>0:00–0:15</td><td>Крок 0</td><td>Набір, дільник напруги, проєкт в Eclipse</td><td>Підготовка</td></tr>
+    <tr><td>0:15–0:30</td><td>Крок 1</td><td>Перший adc_oneshot_read() — сире число 0–4095</td><td>АЦП, кодування</td></tr>
+    <tr><td>0:30–0:40</td><td>Крок 2</td><td>Атенюація входу: чому без неї сигнал «обрізається»</td><td>ADC_ATTEN_DB_12</td></tr>
+    <tr><td>0:40–0:55</td><td>Крок 3</td><td>Дискретизація: частота читання і втрачені події</td><td>Sampling, Nyquist, alias</td></tr>
+    <tr><td>0:55–1:10</td><td>Крок 4</td><td>Квантування: bitwidth 9 біт vs 12 біт</td><td>Bit depth, LSB</td></tr>
+    <tr><td>1:10–1:25</td><td>Крок 5</td><td>Оверсемплінг: усереднення проти шуму</td><td>Помилка квантування</td></tr>
+    <tr><td>1:25–1:45</td><td>Крок 6</td><td>Калібрування у вольти: adc_cali проти «наївної» формули</td><td>Опорна напруга, eFuse</td></tr>
+    <tr><td>1:45–2:00</td><td>Крок 7</td><td>Фінал: неблокуючий сигналізатор з гістерезисом</td><td>усе разом</td></tr>
+    <tr><td>Бонус</td><td>Крок 8</td><td>Челенджі, термістор (NTC), continuous mode</td><td>розширення</td></tr>
+  </table>
+</div>
+
+<!-- ===================== 02 ПЕРШЕ ЧИТАННЯ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">02</div>
+  <div class="ttl">Перший adc_oneshot_read(): від напруги до числа<small>СИРЕ ЗНАЧЕННЯ 0–4095 · 12-БІТНИЙ АЦП</small></div>
+</div>
+<div class="lead">Почнемо з мінімального коду на «чистому» ESP-IDF: ініціалізуємо блок АЦП, читаємо напругу на вузлі дільника й друкуємо число. Побачимо, що це число само по собі ще нічого не «розуміє» — його треба інтерпретувати.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 1</span><span class="stitle">adc_oneshot_read(): дивимось на «сире» число АЦП</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Прочитати аналоговий вузол і надрукувати число від <b>0 до 4095</b> (12-бітний АЦП за замовчуванням). Перекрити датчик рукою і посвітити на нього
+  ліхтариком телефону — побачити, як число реагує.</p>
+  <div class="chip c-code">Код · main/main.c</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 1: перше читання АЦП (ESP-IDF, adc_oneshot API)</span>
+#include &lt;stdio.h&gt;
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_adc/adc_oneshot.h"     <span class="cm">// новий (IDF v5.x) API одноразових замірів АЦП</span>
+#include "esp_log.h"
+
+#define ADC_UNIT     ADC_UNIT_1        <span class="cm">// АЦП1 — не конфліктує з Wi-Fi</span>
+#define ADC_CHANNEL  ADC_CHANNEL_6     <span class="cm">// GPIO34 на класичному ESP32 = ADC1_CHANNEL_6</span>
+static const char *TAG = "ADC_LAB";
+
+void app_main(void)
+{
+    adc_oneshot_unit_handle_t adc1_handle;               <span class="cm">// хендл блока АЦП1 — потрібен для всіх подальших викликів</span>
+    adc_oneshot_unit_init_cfg_t init_config = {
+        .unit_id = ADC_UNIT,
+    };
+    adc_oneshot_new_unit(&init_config, &adc1_handle);    <span class="cm">// реєструємо блок АЦП1</span>
+
+    adc_oneshot_chan_cfg_t chan_config = {
+        .bitwidth = ADC_BITWIDTH_DEFAULT,                <span class="cm">// типова роздільна здатність (12 біт на класичному ESP32)</span>
+        .atten    = ADC_ATTEN_DB_12,                      <span class="cm">// дозволяє читати повний діапазон ~0-3.3В (детально — Крок 2)</span>
+    };
+    adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL, &chan_config);
+
+    while (1) {
+        int raw = 0;
+        adc_oneshot_read(adc1_handle, ADC_CHANNEL, &raw); <span class="cm">// ОДИН замір: дискретизація + квантування + кодування за один виклик</span>
+        ESP_LOGI(TAG, "Сире значення: %d", raw);
+
+        vTaskDelay(pdMS_TO_TICKS(200));                   <span class="cm">// пауза 200 мс — щоб монітор встигав, і задача не займала весь CPU</span>
+    }
+}</pre>
+  <div class="chip c-watch">Що спостерігаємо</div>
+  <div class="watch">У світлій кімнаті число велике (ближче до 4095), якщо прикрити датчик рукою — падає (ближче до 0). Значення трохи «тремтить» навіть при незмінному
+  світлі — це шум АЦП і живлення, з ним попрацюємо в Кроці 5.</div>
+  <div class="chip c-why">Що насправді відбувається всередині adc_oneshot_read()</div>
+  <div class="why">Виклик <code class="inl">adc_oneshot_read()</code> запускає повний цикл АЦП: <b>дискретизація</b> (АЦП фіксує напругу саме в цю мить),
+  <b>квантування</b> (порівнює її з 4096 рівнями між 0 і опорною напругою) і <b>кодування</b> (повертає ціле число — індекс найближчого рівня). Усе це відбувається
+  апаратно, за одиниці мікросекунд, всередині SAR-АЦП (Successive Approximation Register) — послідовних порівнянь, що звужують діапазон удвічі на кожному кроці.</div>
+  <div class="chip c-note">Чому ініціалізація тут явна, а не прихована</div>
+  <div class="note">В Arduino-обгортці виклик <code class="inl">analogRead()</code> сам ховає від тебе <code class="inl">adc_oneshot_new_unit()</code> і
+  <code class="inl">adc_oneshot_config_channel()</code> — вони виконуються автоматично один раз при першому зверненні. У «чистому» ESP-IDF ці кроки треба зробити
+  явно, зате ти точно бачиш і контролюєш кожен параметр АЦП: юніт, канал, розрядність, атенюацію.</div>
+</div>
+</div>
+
+<!-- ===================== 03 АТЕНЮАЦІЯ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">03</div>
+  <div class="ttl">Атенюація входу: чому 3.3В без неї «обрізаються»<small>ADC_ATTEN_DB_12 · РОБОЧИЙ ДІАПАЗОН АЦП</small></div>
+</div>
+<div class="lead">Специфіка ESP-IDF, якої немає в Arduino-обгортці «з коробки»: треба явно вказати, у якому діапазоні вольтів очікувати сигнал. Розберемо, чому і що станеться, якщо забути.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 2</span><span class="stitle">Що станеться без правильної атенюації</span><span class="timep">⏱ 10 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Навмисно поставити занадто малу атенюацію (<code class="inl">ADC_ATTEN_DB_0</code>) і побачити, що показник «впирається в стелю» задовго до
+  повного освітлення датчика — сигнал обрізається.</p>
+  <div class="chip c-code">Код · main/main.c (фрагмент, що змінюємо)</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 2: занадто мала атенюація — сигнал «обрізається»</span>
+adc_oneshot_chan_cfg_t chan_config = {
+    .bitwidth = ADC_BITWIDTH_DEFAULT,
+    .atten    = ADC_ATTEN_DB_0,       <span class="bad">// ← навмисна помилка: діапазон входу лише 0-1.1В!</span>
+};
+adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL, &chan_config);</pre>
+  <div class="chip c-watch">Що спостерігаємо</div>
+  <div class="watch">Навіть у звичайній кімнаті (не яскраве світло) значення швидко впирається в <b>4095</b> і далі не росте, хоча реальна напруга на вузлі ще росте разом
+  із освітленням. Це «стеля» АЦП при <code class="inl">ADC_ATTEN_DB_0</code> — усе, що вище ~1.1В, читається як однаковий максимум.</div>
+  <table class="tbl">
+    <tr><th>Атенюація</th><th>Приблизний робочий діапазон входу</th><th>Коли використовувати</th></tr>
+    <tr><td><code class="inl">ADC_ATTEN_DB_0</code></td><td>0 – 1.1 В</td><td>сигнал заздалегідь звужений до 1.1В (рідко)</td></tr>
+    <tr><td><code class="inl">ADC_ATTEN_DB_2_5</code></td><td>0 – 1.5 В</td><td>проміжні випадки</td></tr>
+    <tr><td><code class="inl">ADC_ATTEN_DB_6</code></td><td>0 – 2.2 В</td><td>датчики з живленням ~2В</td></tr>
+    <tr><td><code class="inl">ADC_ATTEN_DB_12</code></td><td>0 – ~3.3 В (реально трохи менше)</td><td><b>наш випадок:</b> дільник напруги від 3.3В</td></tr>
+  </table>
+  <div class="chip c-why">Звідки береться ця «стеля»</div>
+  <div class="why">Внутрішній АЦП ESP32 фізично здатен коректно вимірювати напругу лише в діапазоні приблизно <b>0–1.1 В</b> — це його «рідний» робочий діапазон. Наш
+  дільник напруги видає напругу до 3.3 В. <b>Атенюатор</b> — апаратний блок перед самим АЦП, який <b>пропорційно зменшує</b> вхідну напругу перед вимірюванням, а
+  результат перераховується назад. Це як переставити лінійку — та сама кількість поділок (4096), але тепер вони покривають ширший діапазон реальної напруги. Постав
+  назад <code class="inl">ADC_ATTEN_DB_12</code>, і показник знову зможе рости аж до реального максимуму освітленості.</div>
+  <div class="chip c-note">Побічна ціна ширшого діапазону</div>
+  <div class="note">Що більше атенюація, то трохи <b>менша точність</b> біля нижньої межі діапазону — те саме число поділок (4096) розтягнуто на ширший діапазон
+  вольтів, тож кожна поділка «важить» більше мілівольт. Це прямий наслідок формули <code class="inl">LSB = Vref / 2^N</code> з лекції — тут «Vref» фактично
+  розширюється атенюацією.</div>
+</div>
+</div>
+
+<!-- ===================== 04 ДИСКРЕТИЗАЦІЯ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">04</div>
+  <div class="ttl">Дискретизація: як часто питати датчик<small>ЧАСТОТА ДИСКРЕТИЗАЦІЇ · ТЕОРЕМА NYQUIST · АЛІЗИНГ</small></div>
+</div>
+<div class="lead">Дискретизація вирішує проблему часу: коли саме «фотографувати» сигнал. Побачимо, що занадто рідкі знімки можуть пропустити або спотворити швидку подію.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 3</span><span class="stitle">Що буде, якщо читати датчик надто рідко</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Імітувати швидку зміну освітленості — швидко махати рукою над LDR — і подивитись, як картина в логах змінюється залежно від <b>частоти
+  дискретизації</b> (<code class="inl">vTaskDelay()</code> у циклі).</p>
+  <div class="chip c-code">Код · main/main.c (цикл читання)</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 3: вплив частоти дискретизації</span>
+while (1) {
+    int raw = 0;
+    adc_oneshot_read(adc1_handle, ADC_CHANNEL, &raw);
+    ESP_LOGI(TAG, "raw=%d", raw);
+
+    <span class="cm">// --- спробуй три значення затримки по черзі ---</span>
+    vTaskDelay(pdMS_TO_TICKS(20));       <span class="cm">// ① часта дискретизація (~50 Гц) — бачимо кожен «змах» чітко</span>
+    <span class="bad">// vTaskDelay(pdMS_TO_TICKS(200));   // ② помірна (~5 Гц) — «змахи» вже розмиті</span>
+    <span class="bad">// vTaskDelay(pdMS_TO_TICKS(1000));  // ③ рідка (~1 Гц) — швидкі змахи майже не видно, або видно неправильно</span>
+}</pre>
+  <div class="chip c-task">Експеримент: три швидкості дискретизації</div>
+  <div class="task">Залий із <code class="inl">vTaskDelay(pdMS_TO_TICKS(20))</code> — швидко махай рукою над датчиком 5–6 разів за секунду. У логу видно чіткі
+  «провали» значення. Тепер розкоментуй варіант з <code class="inl">1000</code> мс — і повтори той самий рух. Провали або зникають, або лог показує геть іншу,
+  повільнішу картину, ніж твій справжній рух руки. Це наслідок <b>надто рідкої</b> дискретизації.</div>
+  <div class="chip c-why">Теорема Nyquist на практиці</div>
+  <div class="why">Щоб коректно відновити сигнал з максимальною частотою <b>f_max</b>, частота дискретизації має бути <b>f_s ≥ 2 × f_max</b>. Твій рух руки — це
+  сигнал із частотою приблизно 1–3 Гц (один «змах» за 0.3–1 с). Отже, <code class="inl">vTaskDelay(20)</code> (≈50 Гц) дає величезний запас, а
+  <code class="inl">vTaskDelay(1000)</code> (1 Гц) — це вже <b>межа або порушення</b> теореми: швидкі змахи «зливаються» або спотворюються — виникає <b>алізинг</b>,
+  коли швидка зміна маскується під повільну.</div>
+  <div class="chip c-note">Коли це критично в реальних проєктах</div>
+  <div class="note">Для повільних величин (температура кімнати, рівень освітленості за вікном) навіть <code class="inl">vTaskDelay(1000)</code> цілком достатньо. Але
+  для вібрації, звуку чи швидких перехідних процесів занизька частота дискретизації дає <b>хибні дані, які виглядають правдоподібно</b> — і саме тому небезпечна:
+  помилку важко помітити без спеціального обладнання.</div>
+</div>
+</div>
+
+<!-- ===================== 05 КВАНТУВАННЯ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">05</div>
+  <div class="ttl">Квантування: скільки рівнів у нашій «лінійці»<small>bitwidth · LSB · 9-БІТ VS 12-БІТ</small></div>
+</div>
+<div class="lead">Квантування вирішує проблему амплітуди: на скільки дискретних рівнів ділимо діапазон напруги. Змінимо роздільну здатність і побачимо, як «грубішає» показник.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 4</span><span class="stitle">bitwidth: порівнюємо 9 і 12 біт</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Плавно перекривати LDR рукою (повільний рух) на кожній із двох роздільних здатностей і подивитись, наскільки «сходинками» виглядає показник при
+  малій розрядності.</p>
+  <div class="chip c-code">Код · main/main.c (конфіг каналу)</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 4: квантування — вплив розрядності АЦП</span>
+adc_oneshot_chan_cfg_t chan_config = {
+    .bitwidth = ADC_BITWIDTH_9,        <span class="cm">// ① 512 рівнів замість 4096 — навмисно занижена розрядність</span>
+    <span class="bad">// .bitwidth = ADC_BITWIDTH_DEFAULT, // ② повернути 12 біт (4096 рівнів) для порівняння</span>
+    .atten    = ADC_ATTEN_DB_12,
+};
+adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL, &chan_config);</pre>
+  <div class="note">Лінійка доступних значень <code class="inl">ADC_BITWIDTH_x</code> залежить від конкретного чипа ESP32 — звіряй із <code class="inl">adc_types.h</code>
+  свого SDK; на класичному ESP32 діапазон <code class="inl">ADC_BITWIDTH_9</code> … <code class="inl">ADC_BITWIDTH_12</code>.</div>
+  <div class="chip c-watch">Що спостерігаємо</div>
+  <div class="watch">На <b>12 бітах</b> число змінюється плавно, дрібними кроками. На <b>9 бітах</b> те саме повільне перекривання рукою дає лише кілька десятків
+  можливих значень — у логу видно, що показник «стрибає» через кілька одиниць одразу, замість плавної зміни на одиницю.</div>
+  <div class="chip c-why">Звідки береться LSB (крок кванта)</div>
+  <div class="why">Формула кроку кванта: <b>LSB = Vref / 2^N</b>, де N — розрядність. При Vref ≈ 3.3 В: 12 біт → 3.3/4096 ≈ <b>0.805 мВ</b>; 9 біт → 3.3/512 ≈
+  <b>6.45 мВ</b>. Дві напруги, що відрізняються менше ніж на LSB, АЦП <b>не розрізнить</b> — вони закодуються однаковим числом.</div>
+  <table class="tbl">
+    <tr><th>Розрядність</th><th>Рівнів</th><th>LSB (при Vref ≈ 3.3 В)</th><th>Аналог з лекції</th></tr>
+    <tr><td>9 біт</td><td>512</td><td>≈ 6.45 мВ</td><td>грубе квантування, наочна демонстрація</td></tr>
+    <tr><td>10 біт</td><td>1024</td><td>≈ 3.22 мВ</td><td>Arduino Uno (10 біт, але Vref 5В)</td></tr>
+    <tr><td>12 біт</td><td>4096</td><td>≈ 0.805 мВ</td><td>стандарт ESP32/STM32F4</td></tr>
+    <tr><td>16 біт</td><td>65 536</td><td>≈ 0.05 мВ</td><td>звукова карта ПК</td></tr>
+  </table>
+  <div class="chip c-note">Чому не завжди варто брати максимум біт</div>
+  <div class="note">Більша розрядність не рятує від <b>шуму</b> самого сигналу (тремтіння значення з Кроку 1) — вона лише дрібніше ділить діапазон. Якщо шум датчика
+  вже «більший» за LSB, зайві біти просто показують випадкові коливання останніх розрядів. Для боротьби з шумом потрібен інший інструмент — оверсемплінг (Крок 5).</div>
+</div>
+</div>
+
+<!-- ===================== 06 ОВЕРСЕМПЛІНГ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">06</div>
+  <div class="ttl">Оверсемплінг: усереднення проти шуму<small>БАГАТО ЗАМІРІВ → ОДНЕ ТОЧНІШЕ ЗНАЧЕННЯ</small></div>
+</div>
+<div class="lead">Кожен окремий замір містить трохи шуму і помилку квантування. Якщо тримати сигнал незмінним і зробити багато замірів, їх середнє виявляється точнішим за будь-який окремий замір.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 5</span><span class="stitle">Усереднення N вимірів замість одного</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Порівняти «сирий» одиночний замір і середнє з 16 замірів на нерухомому датчику (не рухай рукою і не змінюй освітлення) — побачити, що середнє
+  набагато стабільніше, «не тремтить».</p>
+  <div class="chip c-code">Код · main/main.c</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 5: оверсемплінг — усереднення N вимірів</span>
+#define SAMPLES 16                              <span class="cm">// скільки замірів усереднюємо</span>
+
+static int read_averaged(adc_oneshot_unit_handle_t handle)
+{
+    long sum = 0;
+    for (int i = 0; i < SAMPLES; i++) {
+        int raw = 0;
+        adc_oneshot_read(handle, ADC_CHANNEL, &raw);
+        sum += raw;
+    }
+    return (int)(sum / SAMPLES);                <span class="cm">// ціле середнє</span>
+}
+
+<span class="cm">// ...у циклі:</span>
+int single = 0;
+adc_oneshot_read(adc1_handle, ADC_CHANNEL, &single);   <span class="cm">// один «сирий» замір — для порівняння</span>
+int avg = read_averaged(adc1_handle);                  <span class="cm">// усереднене значення</span>
+ESP_LOGI(TAG, "single=%d   avg16=%d", single, avg);
+vTaskDelay(pdMS_TO_TICKS(200));</pre>
+  <div class="chip c-watch">Що спостерігаємо</div>
+  <div class="watch"><code class="inl">single</code> стрибає на кілька одиниць між друками, навіть коли ти не рухаєш ані рукою, ані датчиком. <code class="inl">avg16</code>
+  тримається набагато стабільнішим — коливання майже зникають.</div>
+  <div class="chip c-why">Чому усереднення працює</div>
+  <div class="why">Шум АЦП переважно <b>випадковий</b> і симетричний навколо справжнього значення — то трохи вище, то трохи нижче. Якщо додати багато таких вимірів і
+  поділити на їхню кількість, випадкові відхилення <b>гасять одне одного</b>, а справжнє значення «проступає» точніше. Це той самий принцип, що й у фотографії з
+  довгою витримкою: багато кадрів складаються в один чіткіший.</div>
+  <div class="chip c-note">Побічний ефект: «зайві» ефективні біти</div>
+  <div class="note">Правило оверсемплінгу: усереднення <b>4^n</b> замірів дає приблизно <b>+n ефективних біт</b> точності. У нашому прикладі 16 = 4², тобто ми
+  «виграли» приблизно <b>2 додаткові ефективні біти</b> над «сирим» 12-бітним значенням — платимо за це часом (16 замірів замість одного).</div>
+</div>
+</div>
+
+<!-- ===================== 07 КАЛІБРУВАННЯ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">07</div>
+  <div class="ttl">Від числа назад до вольтів — по-справжньому<small>adc_cali · ЗАВОДСЬКЕ КАЛІБРУВАННЯ eFuse</small></div>
+</div>
+<div class="lead">Мало отримати число — часто потрібна фізична величина: вольти, а далі освітленість чи температура. Побачимо формулу переведення і головну пастку — неточну опорну напругу — та як ESP-IDF вирішує це заводським калібруванням.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 6</span><span class="stitle">adc_cali_raw_to_voltage() проти «наївної» формули</span><span class="timep">⏱ 20 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Порахувати напругу двома способами одночасно — приблизно за формулою й точно через заводське калібрування — і звірити обидва результати з
+  мультиметром.</p>
+  <div class="chip c-code">Код · main/main.c</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 6: калібрування у вольти (esp_adc_cali)</span>
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+
+<span class="cm">// --- один раз при старті: створюємо об'єкт калібрування ---</span>
+adc_cali_handle_t cali_handle = NULL;
+adc_cali_curve_fitting_config_t cali_config = {
+    .unit_id  = ADC_UNIT,
+    .chan     = ADC_CHANNEL,
+    .atten    = ADC_ATTEN_DB_12,
+    .bitwidth = ADC_BITWIDTH_DEFAULT,
+};
+esp_err_t ret = adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle); <span class="cm">// читає заводські дані з eFuse чипа</span>
+
+if (ret != ESP_OK) {
+    ESP_LOGI(TAG, "Заводське калібрування недоступне на цьому чипі");
+}
+
+<span class="cm">// --- у циклі: ---</span>
+int raw = 0;
+adc_oneshot_read(adc1_handle, ADC_CHANNEL, &raw);
+
+int voltage_mv_calibrated = 0;
+adc_cali_raw_to_voltage(cali_handle, raw, &voltage_mv_calibrated);   <span class="cm">// ТОЧНЕ переведення з урахуванням eFuse-даних чипа</span>
+
+float voltage_mv_naive = (raw / 4095.0f) * 3300.0f;                  <span class="cm">// ПРИБЛИЗНЕ переведення "на око"</span>
+
+ESP_LOGI(TAG, "raw=%4d   calibrated=%d mV   naive=%.0f mV   diff=%d mV",
+         raw, voltage_mv_calibrated, voltage_mv_naive,
+         voltage_mv_calibrated - (int)voltage_mv_naive);</pre>
+  <div class="chip c-task">Порівняй із мультиметром</div>
+  <div class="task">Постав мультиметр у режим вимірювання напруги (DC) між <code class="inl">GPIO34</code> і <code class="inl">GND</code>. Порівняй його показ із
+  обома стовпчиками в логу — <code class="inl">calibrated</code> і <code class="inl">naive</code>. Який ближче до показу мультиметра?</div>
+  <div class="chip c-why">Звідки береться розходження</div>
+  <div class="why">Формула <code class="inl">(raw / 4095) × 3300</code> припускає, що опорна напруга <b>рівно</b> 3.3 В і що АЦП <b>ідеально лінійний</b>. У
+  реальності живлення плати може бути 3.28–3.34 В, а АЦП ESP32 має відому <b>нелінійність</b>, особливо біля країв діапазону. <code class="inl">adc_cali_raw_to_voltage()</code>
+  читає заводські калібрувальні коефіцієнти, «прошиті» в eFuse ще на виробництві саме для цього конкретного чипа, і враховує реальну форму характеристики — тому
+  результат зазвичай ближчий до показу мультиметра, ніж «наївна» формула.</div>
+  <div class="chip c-note">Правильна й неправильна формула — часта помилка</div>
+  <div class="note">У «наївній» формулі завжди діли на <b>максимальне значення поточної розрядності</b>: для 12 біт це <code class="inl">4095</code>, а <b>не</b>
+  <code class="inl">65535</code> (це було б 16-бітне значення) і <b>не</b> <code class="inl">4096</code> (це кількість рівнів, а не максимальний індекс — рівні йдуть
+  від 0 до 4095). Якщо змінив <code class="inl">bitwidth</code>, зміни й дільник у формулі.</div>
+</div>
+</div>
+
+<!-- ===================== 08 ФІНАЛ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">08</div>
+  <div class="ttl">Фінал: неблокуючий сигналізатор темряви<small>ОВЕРСЕМПЛІНГ + ГІСТЕРЕЗИС + esp_timer_get_time()</small></div>
+</div>
+<div class="lead">Зберемо все докупи: періодичне неблокуюче зчитування через мітки часу, усереднення проти шуму і поріг з гістерезисом — щоб LED не «мигтів» на межі темно/світло.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок 7</span><span class="stitle">💡 Повний код: сигналізатор темряви без блокування</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Читати датчик кожні 50 мс (неблокуюче, через <code class="inl">esp_timer_get_time()</code>), усереднювати кілька замірів і вмикати LED, коли
+  стає темно. Головне — уникнути «мерехтіння» LED, коли освітленість коливається точно біля порогу.</p>
+  <div class="chip c-code">Код · main/main.c (фінал)</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Крок 7: ФІНАЛ — неблокуючий сигналізатор темряви</span>
+#include &lt;stdio.h&gt;
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+#include "esp_timer.h"                 <span class="cm">// esp_timer_get_time() — для неблокуючого розкладу читань</span>
+#include "esp_log.h"
+
+#define ADC_UNIT       ADC_UNIT_1
+#define ADC_CHANNEL    ADC_CHANNEL_6
+#define LED_PIN        GPIO_NUM_5
+
+#define SAMPLES            16          <span class="cm">// оверсемплінг: скільки замірів усереднюємо за один цикл</span>
+#define SAMPLE_PERIOD_US   (50 * 1000) <span class="cm">// період дискретизації: 50 мс = 20 Гц</span>
+#define THRESHOLD_ON_RAW   1500        <span class="cm">// стає темно нижче цього "сирого" рівня</span>
+#define THRESHOLD_OFF_RAW  1800        <span class="cm">// вважаємо "знову світло" вище цього рівня</span>
+
+static const char *TAG = "ADC_FINAL";
+
+static int read_averaged(adc_oneshot_unit_handle_t handle)      <span class="cm">// оверсемплінг проти шуму (Крок 5)</span>
+{
+    long sum = 0;
+    for (int i = 0; i < SAMPLES; i++) {
+        int raw = 0;
+        adc_oneshot_read(handle, ADC_CHANNEL, &raw);
+        sum += raw;
+    }
+    return (int)(sum / SAMPLES);
+}
+
+void app_main(void)
+{
+    gpio_config_t led_conf = {                              <span class="cm">// налаштування виходу LED</span>
+        .pin_bit_mask = 1ULL << LED_PIN,
+        .mode = GPIO_MODE_OUTPUT,
+    };
+    gpio_config(&led_conf);
+
+    adc_oneshot_unit_handle_t adc1_handle;                  <span class="cm">// налаштування АЦП (Крок 1)</span>
+    adc_oneshot_unit_init_cfg_t init_config = { .unit_id = ADC_UNIT };
+    adc_oneshot_new_unit(&init_config, &adc1_handle);
+
+    adc_oneshot_chan_cfg_t chan_config = {
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+        .atten    = ADC_ATTEN_DB_12,
+    };
+    adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL, &chan_config);
+
+    adc_cali_handle_t cali_handle = NULL;                   <span class="cm">// калібрування (Крок 6) — для друку вольтів у лог</span>
+    adc_cali_curve_fitting_config_t cali_config = {
+        .unit_id = ADC_UNIT, .chan = ADC_CHANNEL,
+        .atten = ADC_ATTEN_DB_12, .bitwidth = ADC_BITWIDTH_DEFAULT,
+    };
+    adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle);
+
+    bool led_on = false;                <span class="cm">// офіційний, підтверджений гістерезисом стан</span>
+    int64_t last_sample = 0;            <span class="cm">// мітка часу останнього виміру (мкс)</span>
+
+    while (1) {
+        int64_t now = esp_timer_get_time();
+
+        if (now - last_sample >= SAMPLE_PERIOD_US) {   <span class="cm">// неблокуюча дискретизація за розкладом</span>
+            last_sample = now;
+
+            int level = read_averaged(adc1_handle);    <span class="cm">// квантоване, усереднене значення освітленості</span>
+
+            int mv = 0;
+            adc_cali_raw_to_voltage(cali_handle, level, &mv);
+
+            <span class="cm">// --- гістерезис: два різні пороги замість одного ---</span>
+            if (!led_on && level < THRESHOLD_ON_RAW) {
+                led_on = true;                          <span class="ok">// стало темно → вмикаємо</span>
+            } else if (led_on && level > THRESHOLD_OFF_RAW) {
+                led_on = false;                         <span class="ok">// стало досить світло → вимикаємо</span>
+            }
+            gpio_set_level(LED_PIN, led_on);
+
+            ESP_LOGI(TAG, "level=%4d (%d mV)   led=%s", level, mv, led_on ? "ON" : "off");
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(5)); <span class="cm">// невелика пауза — лишає час планувальнику FreeRTOS, не впливає на точність дискретизації</span>
+    }
+}</pre>
+  <div class="chip c-watch">⚠️ Часті помилки монтажу (з реального налагодження)</div>
+  <div class="watch">
+  <b>① Дільник переплутано місцями.</b> Якщо LDR стоїть <b>після</b> резистора (ближче до GND), поведінка інвертується: на світлі напруга падає, а не росте.
+  Перевір мультиметром: на яскравому світлі у вузлі GPIO34 має бути <b>висока</b> напруга (ближче до 3.3V).<br>
+  <b>② Немає точки з'єднання.</b> LDR і резистор мають з'єднуватись <b>саме у вузлі</b> з дротом до GPIO34 — якщо на макетці ряд зсунутий на одну лунку, кола нема
+  й <code class="inl">adc_oneshot_read()</code> дає або 0, або 4095 постійно.<br>
+  <b>③ Один поріг замість двох.</b> Якщо порівнювати з <b>одним</b> порогом, а освітленість природно тремтить біля межі (шум АЦП + власне мерехтіння світла), LED
+  почне <b>«мигтіти»</b> по кілька разів за секунду. Два пороги (<code class="inl">THRESHOLD_ON_RAW &lt; THRESHOLD_OFF_RAW</code>) з проміжком-«мертвою зоною»
+  вирішують це.<br>
+  <b>④ Забуто <code class="inl">REQUIRES esp_adc</code> у CMakeLists.txt</b> — збірка впаде на етапі інклюдів, ще до будь-якого коду.</div>
+  <div class="chip c-why">Чому гістерезис — це аналоговий аналог дебаунсу</div>
+  <div class="why">У модулі про кнопки дребезг контактів прибирали <b>часовим</b> вікном (ігноруй події ближче ніж N мс). Тут шум навколо порогу прибираємо
+  <b>амплітудним</b> вікном: замість однієї межі — дві, з проміжком між ними. Поки значення не вийшло за <b>протилежний</b> поріг, стан не змінюється. Це той самий
+  принцип «не довіряй одиничному коливанню сигналу», тільки застосований до амплітуди, а не до часу.</div>
+  <div class="chip c-task">Міні-експеримент: постав один поріг замість двох</div>
+  <div class="task">Заміни обидва пороги на одне значення <code class="inl">1650</code> і плавно тримай долоню на межі тінь/світло над датчиком. Подивись, скільки
+  разів клацає LED і скільки рядків <code class="inl">level=...</code> зі зміною стану з'являється в моніторі. Поверни два пороги — і повтори: клацання майже
+  зникають.</div>
+</div>
+</div>
+
+<!-- ===================== 09 ТЕРМІСТОР NTC (ESP32) ===================== -->
+<div class="sec">
+<div class="band"><div class="num">09</div>
+  <div class="ttl">Термістор NTC на ESP32: той самий АЦП, інша фізика<small>ДРУГИЙ ДАТЧИК НА ОКРЕМОМУ КАНАЛІ ADC1 · ESP-IDF</small></div>
+</div>
+<div class="lead">У тебе в наборі є і фоторезистор, і термістор — тож зберемо обидва одночасно на двох каналах ADC1, у повноцінній робочій програмі: LDR керує сигналізатором темряви (з гістерезисом і калібруванням), а NTC паралельно друкує температуру, з перевіркою помилок читання на кожному кроці.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Дільник напруги з NTC-термістором — окремий канал ADC1</span></div>
+  <p class="body">Термістор — <b>не полярний</b> компонент (як звичайний резистор, різниці між виводами немає). Схема — той самий дільник напруги, що й з LDR, але на
+  <b>іншому піні</b>, щоб обидва датчики могли працювати паралельно: <b>3.3V → NTC → (вузол з ADC-піном) → резистор 10 кОм → GND.</b> З <b>ростом температури</b>
+  опір NTC <b>падає</b> — отже, напруга у вузлі <b>зростає</b>.</p>
+  <div class="wire">  3.3V ───[ LDR фоторезистор ]───┬─── GPIO33 (ADC1_CHANNEL_5)
+                                  │
+                             [ 10 кОм ]
+                                  │
+                                 GND
+
+  3.3V ───[ NTC термістор ]───┬─── GPIO39 (ADC1_CHANNEL_3)
+                               │
+                          [ 10 кОм ]
+                               │
+                              GND
+
+  GPIO5 ──[220Ω]──▶|── GND       LED (сигналізатор темряви)</div>
+  <table class="tbl">
+    <tr><th>Вивід ESP32</th><th>Куди йде</th><th>Примітка</th></tr>
+    <tr><td><code class="inl">GPIO33</code></td><td>вузол дільника LDR (до 3.3V) і резистор 10 кОм (до GND)</td><td>канал <b>ADC1_CHANNEL_5</b></td></tr>
+    <tr><td><code class="inl">GPIO39</code></td><td>вузол дільника NTC (до 3.3V) і резистор 10 кОм (до GND)</td><td>канал <b>ADC1_CHANNEL_3</b> — вхід-only, без внутрішніх підтяжок</td></tr>
+    <tr><td><code class="inl">GPIO5</code></td><td>через 220 Ом → анод LED, катод → <code class="inl">GND</code></td><td>сигналізатор темряви (той самий LED, що й у Кроці 7)</td></tr>
+  </table>
+  <div class="watch"><b>Це самостійна фінальна програма.</b> Вона не «дописує» Крок 7 — це окремий, повністю протестований на залізі файл
+  <code class="inl">main.c</code>, який сам ініціалізує GPIO, АЦП і калібрування з нуля. Якщо раніше LDR був у тебе на <code class="inl">GPIO34</code> — для цієї
+  версії просто перепаяй провід дільника на <code class="inl">GPIO33</code> (сусідній вхід-only пін ADC1). Фізично сенсори ті самі — змінюються лише конкретні
+  канали, обрані для цього прикладу.</div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">💡 Повний робочий код: LDR-сигналізатор + NTC з обробкою помилок</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Зібрати завершену програму, яка не просто повторює Крок 7, а робить це <b>надійніше</b>: перевіряє код повернення кожного виміру
+  (<code class="inl">adc_oneshot_read()</code> може повернути помилку), захищається від ділення на нуль і межових значень у формулі NTC через
+  <code class="inl">NAN</code>, і використовує заводське калібрування саме для каналу LDR.</p>
+  <div class="chip c-code">Код · main/main.c</div>
+  <pre class="code"><span class="cm">// Модуль 3.1 — Частина 5: LDR-сигналізатор + NTC, з повною обробкою помилок</span>
+#include &lt;stdio.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;math.h&gt;
+
+#include "driver/gpio.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "hal/adc_types.h"
+
+#define LDR_UNIT       ADC_UNIT_1
+#define LDR_CHANNEL    ADC_CHANNEL_5     <span class="cm">// GPIO33</span>
+#define NTC_UNIT       ADC_UNIT_1
+#define NTC_CHANNEL    ADC_CHANNEL_3     <span class="cm">// GPIO39</span>
+#define LED_PIN        GPIO_NUM_5
+
+#define SAMPLES                16
+#define SAMPLE_PERIOD_US       (50 * 1000)
+#define THRESHOLD_ON_RAW       1500
+#define THRESHOLD_OFF_RAW      1800
+
+#define ADC_MAX_RAW            4095
+#define APPROX_ADC_FULL_MV     3300
+
+<span class="cm">/* NTC datasheet values:
+ * R25      = 10 kohm +/-1%
+ * B25/50   = 3950 K +/-1%
+ *
+ * Divider connection must match the DigiKey example:
+ * 3.3 V -> NTC -> ADC node -> SERIES_R -> GND
+ */</span>
+static const float SERIES_R_OHM = 10000.0f;
+static const float NTC_R25_OHM  = 10000.0f;
+static const float NTC_T25_C    = 25.0f;
+static const float NTC_B25_50_K = 3950.0f;
+
+static const char *TAG = "NTC";
+
+static float raw_to_ntc_resistance_ohm(int raw)
+{
+    if (raw &lt;= 0 || raw &gt;= ADC_MAX_RAW) {
+        return NAN;                       <span class="cm">// захист від ділення на нуль і межових "сирих" значень</span>
+    }
+
+    <span class="cm">/* DigiKey divider formula:
+     * R_NTC = R_series * (ADC_max / ADC_raw - 1)
+     */</span>
+    return SERIES_R_OHM *
+           ((float)ADC_MAX_RAW / (float)raw - 1.0f);
+}
+
+static float raw_to_temperature_c(int raw)
+{
+    const float r_ntc = raw_to_ntc_resistance_ohm(raw);
+
+    if (!isfinite(r_ntc) || r_ntc &lt;= 0.0f) {
+        return NAN;                       <span class="cm">// NAN з попередньої функції поширюємо далі, а не "тихо" рахуємо сміття</span>
+    }
+
+    const float t25_k = NTC_T25_C + 273.15f;
+
+    <span class="cm">/* Beta equation:
+     * 1/T = 1/T25 + ln(R/R25)/B
+     */</span>
+    const float inverse_t =
+        (1.0f / t25_k) +
+        (logf(r_ntc / NTC_R25_OHM) / NTC_B25_50_K);
+
+    if (!isfinite(inverse_t) || inverse_t &lt;= 0.0f) {
+        return NAN;
+    }
+
+    return (1.0f / inverse_t) - 273.15f;
+}
+
+static int read_averaged(adc_oneshot_unit_handle_t handle,
+                         adc_channel_t channel)
+{
+    int64_t sum = 0;
+    int valid_samples = 0;               <span class="cm">// рахуємо лише вдалі заміри — не всі SAMPLES обов'язково пройдуть без помилок</span>
+
+    for (int i = 0; i &lt; SAMPLES; i++) {
+        int raw = 0;
+
+        if (adc_oneshot_read(handle, channel, &amp;raw) == ESP_OK) {
+            sum += raw;
+            valid_samples++;
+        }
+    }
+
+    if (valid_samples == 0) {
+        return -1;                        <span class="cm">// сигналізуємо виклику: жодного вдалого виміру не було</span>
+    }
+
+    return (int)(sum / valid_samples);
+}
+
+void app_main(void)
+{
+    gpio_config_t led_conf = {
+        .pin_bit_mask = 1ULL &lt;&lt; LED_PIN,
+        .mode = GPIO_MODE_OUTPUT,
+    };
+    ESP_ERROR_CHECK(gpio_config(&amp;led_conf));
+
+    adc_oneshot_unit_handle_t adc1_handle = NULL;
+    adc_oneshot_unit_init_cfg_t init_config = {
+        .unit_id = LDR_UNIT,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&amp;init_config, &amp;adc1_handle));
+
+    adc_oneshot_chan_cfg_t chan_config = {
+        .bitwidth = ADC_BITWIDTH_12,
+        .atten = ADC_ATTEN_DB_12,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(     <span class="cm">// один юніт ADC1 — два незалежно налаштовані канали</span>
+        adc1_handle, LDR_CHANNEL, &amp;chan_config));
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(
+        adc1_handle, NTC_CHANNEL, &amp;chan_config));
+
+    adc_cali_handle_t cali_handle = NULL;
+    adc_cali_curve_fitting_config_t cali_config = {
+        .unit_id = LDR_UNIT,
+        .chan = LDR_CHANNEL,             <span class="cm">// калібрування прив'язане саме до каналу LDR</span>
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_12,
+    };
+
+    const esp_err_t cali_ret =
+        adc_cali_create_scheme_curve_fitting(&amp;cali_config, &amp;cali_handle);
+    const bool calibration_available = (cali_ret == ESP_OK);
+
+    if (!calibration_available) {
+        ESP_LOGW(TAG,
+                 "ADC factory calibration unavailable; "
+                 "LDR voltage will be approximate");
+    }
+
+    bool led_on = false;
+    int64_t last_sample = 0;
+
+    while (true) {
+        const int64_t now = esp_timer_get_time();
+
+        if (now - last_sample &gt;= SAMPLE_PERIOD_US) {   <span class="cm">// неблокуюча дискретизація LDR за розкладом</span>
+            last_sample = now;
+
+            const int level = read_averaged(adc1_handle, LDR_CHANNEL);
+
+            if (level &gt;= 0) {
+                int voltage_mv =
+                    (level * APPROX_ADC_FULL_MV) / ADC_MAX_RAW;   <span class="cm">// "наївна" формула — запасний варіант</span>
+
+                if (calibration_available) {
+                    int calibrated_mv = 0;
+                    if (adc_cali_raw_to_voltage(
+                            cali_handle, level, &amp;calibrated_mv) == ESP_OK) {
+                        voltage_mv = calibrated_mv;               <span class="cm">// а тут — точне, якщо калібрування вдалося</span>
+                    }
+                }
+
+                if (!led_on &amp;&amp; level &lt; THRESHOLD_ON_RAW) {
+                    led_on = true;
+                } else if (led_on &amp;&amp; level &gt; THRESHOLD_OFF_RAW) {
+                    led_on = false;
+                }
+
+                gpio_set_level(LED_PIN, led_on ? 1 : 0);
+
+                ESP_LOGI(TAG,
+                         "LDR=%4d (%d mV)\tLED=%s",
+                         level,
+                         voltage_mv,
+                         led_on ? "ON" : "OFF");
+            } else {
+                ESP_LOGW(TAG, "Failed to read LDR ADC channel");   <span class="cm">// АЦП повернув помилку — не тихо ігноруємо</span>
+            }
+        }
+
+        const int ntc_raw = read_averaged(adc1_handle, NTC_CHANNEL);  <span class="cm">// NTC читаємо щоразу — без гейта за часом</span>
+
+        if (ntc_raw &gt;= 0) {
+            const float r_ntc = raw_to_ntc_resistance_ohm(ntc_raw);
+            const float temp_c = raw_to_temperature_c(ntc_raw);
+
+            if (isfinite(temp_c)) {
+                ESP_LOGI(TAG,
+                         "NTC=%4d\tR=%.1f ohm\tT=%.2f C",
+                         ntc_raw,
+                         r_ntc,
+                         temp_c);
+            } else {
+                ESP_LOGW(TAG,
+                         "Invalid NTC ADC value: raw=%d",
+                         ntc_raw);
+            }
+        } else {
+            ESP_LOGW(TAG, "Failed to read NTC ADC channel");
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(500));    <span class="cm">// темп циклу ~2 Гц — і LDR (гейт 50 мс), і NTC встигають щоразу</span>
+    }
+}</pre>
+  <div class="chip c-task">Експеримент: подихай на термістор або притисни пальцем</div>
+  <div class="task">Обережно затисни NTC між пальцями (або подихай на нього) і подивись, як зростає <code class="inl">T=...</code> у логу — з невеликою затримкою
+  через теплову інерцію самого корпусу термістора. Одночасно прикрий LDR рукою — переконайся, що <code class="inl">LED=ON</code> і <code class="inl">NTC=...</code>
+  друкуються в одному й тому самому циклі, незалежно одне від одного.</div>
+  <div class="chip c-why">Чому тут з'явилися NAN і перевірки повернених кодів — це не «зайва обережність»</div>
+  <div class="why">У Кроках 1-8 ми вважали, що <code class="inl">adc_oneshot_read()</code> завжди вдається, а <code class="inl">raw</code> завжди в «безпечному»
+  діапазоні. У реальному пристрої це не гарантовано: АЦП може тимчасово повернути помилку (наприклад, при конфлікті ресурсу), а формула NTC
+  <code class="inl">SERIES_R_OHM * (ADC_MAX_RAW / raw - 1.0f)</code> <b>ділить на <code class="inl">raw</code></b> — якщо він випадково дорівнює 0, це ділення на
+  нуль. <code class="inl">raw_to_ntc_resistance_ohm()</code> заздалегідь відсікає <code class="inl">raw &lt;= 0</code> і <code class="inl">raw &gt;= ADC_MAX_RAW</code>,
+  повертаючи спеціальне значення <code class="inl">NAN</code> ("не число"), яке потім перевіряється через <code class="inl">isfinite()</code> на кожному етапі —
+  помилка не «губиться» посередині обчислень, а явно доходить до логу як <code class="inl">ESP_LOGW</code>.</div>
+  <div class="chip c-note">Чому LDR і NTC читаються по-різному в цьому циклі</div>
+  <div class="note">LDR обгорнутий у перевірку <code class="inl">now - last_sample &gt;= SAMPLE_PERIOD_US</code> — це неблокуюча дискретизація за розкладом, як і в
+  Кроці 7. NTC читається <b>щоразу</b>, без гейта: температура змінюється значно повільніше за освітленість, тож окремий розклад для неї не критичний, а
+  <code class="inl">vTaskDelay(pdMS_TO_TICKS(500))</code> наприкінці циклу й так тримає загальний темп ~2 рази на секунду для обох датчиків.</div>
+</div>
+</div>
+
+<!-- ===================== 10 ЧЕЛЕНДЖІ + ЧЕК-ЛИСТ ===================== -->
+<div class="sec">
+<div class="band"><div class="num">10</div>
+  <div class="ttl">Челенджі і чек-лист<small>ЗА НАЯВНОСТІ ЧАСУ / ВДОМА</small></div>
+</div>
+<div class="lead">Ти пройшов усі три етапи АЦП-перетворення на практиці, працюючи безпосередньо з апаратним API ESP-IDF, і зібрав два незалежні аналогові датчики одночасно. Ось куди рости далі.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Челенджі (обери 1–2)</span></div>
+  <div class="chip c-task">Челенджі</div>
+  <div class="task">
+  <b>🟢 Легкий:</b> замінити фіксовані пороги на автокалібрування: у перші 3 секунди роботи знайти мінімум/максимум показань (через <code class="inl">esp_timer_get_time()</code>)
+  і рахувати поріг як середнє між ними.<br>
+  <b>🟡 Середній:</b> вивести показник у відсотках освітленості (0–100%) замість сирого числа — з урахуванням реального мін/макс, зафіксованого під час
+  калібрування.<br>
+  <b>🟠 Складніший:</b> перейти на <b>continuous mode</b> АЦП (<code class="inl">adc_continuous.h</code>, читання через DMA у фоні) замість одноразових
+  <code class="inl">adc_oneshot_read()</code> — і порівняти навантаження на CPU.<br>
+  <b>🔴 Дослідницький:</b> порахувати стандартне відхилення 100 «сирих» замірів поспіль на нерухомому датчику, потім те саме для 100 усереднених по 16 значень
+  (Крок 5) — і порівняти, у скільки разів впав розкид.
+  </div>
+</div>
+
+<div class="card q">
+  <div class="slidehd"><span class="stitle">✅ Чек-лист роботи з АЦП на ESP-IDF</span></div>
+  <div class="why">
+  ① У <code class="inl">main/CMakeLists.txt</code> прописано <code class="inl">REQUIRES driver esp_adc esp_timer log freertos</code>.<br>
+  ② Сенсор — <b>лише на ADC1</b>; ADC2 конфліктує з Wi-Fi.<br>
+  ③ Атенюація (<code class="inl">.atten</code>) відповідає реальному діапазону вхідної напруги — інакше сигнал «обрізається» знизу чи зверху.<br>
+  ④ Формула «наївного» переведення в вольти ділить саме на <b>максимальний індекс поточної розрядності</b> (4095 для 12 біт), а не на кількість рівнів.<br>
+  ⑤ Для повільних величин (світло, температура) частота дискретизації в кілька Гц достатня; для швидких сигналів рахуй за теоремою <b>Nyquist</b> (f_s ≥ 2×f_max).<br>
+  ⑥ Одиничний замір завжди містить шум — для стабільного значення застосовуй <b>оверсемплінг</b> (усереднення N замірів через <code class="inl">adc_oneshot_read()</code> у циклі).<br>
+  ⑦ Порогові рішення (увімкнути/вимкнути) роби через <b>два пороги з гістерезисом</b>, а не через один.<br>
+  ⑧ Для точних вимірювань напруги — заводське калібрування через <code class="inl">adc_cali_create_scheme_curve_fitting()</code> і
+  <code class="inl">adc_cali_raw_to_voltage()</code>, а не «на око» 3.3 В.<br>
+  ⑨ Неблокуюча дискретизація — через <code class="inl">esp_timer_get_time()</code> і різницю міток часу, а не через довгий <code class="inl">vTaskDelay()</code>
+  прямо в місці зчитування.
+  </div>
+</div>
+</div>
+
+<!-- ===================== 11 STM32F411: ПІДГОТОВКА ===================== -->
+<div class="sec">
+<div class="band"><div class="num">11</div>
+  <div class="ttl">ЧАСТИНА Б · Той самий дільник на STM32F411<small>+45 ХВ · STM32CubeIDE (CubeMX + HAL) · ДОДАТКОВО АБО ВДОМА</small></div>
+</div>
+<div class="lead">Принцип АЦП-перетворення однаковий на будь-якому MCU. Зберемо ту саму схему на <b>STM32F411 (Black Pill)</b> у <b>STM32CubeIDE</b> — тут піни й периферія настроюються графічно через вбудований <b>CubeMX</b>, а код генерується автоматично й лише доповнюється твоєю логікою.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок Б0</span><span class="stitle">Обладнання і новий проєкт у STM32CubeIDE</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-why">Навіщо повторювати на STM32</div>
+  <div class="why">STM32F411 має власний 12-бітний SAR-АЦП з іншою внутрішньою архітектурою (без спільної шини з Wi-Fi-радіо, як у ESP32). Побачивши той самий проєкт тут,
+  ти переконаєшся, що <b>дискретизація, квантування й кодування — універсальні поняття</b>, а різниться лише конкретний API та інструмент розробки.</div>
+  <div class="chip c-code">🧰 Обладнання (частина Б)</div>
+  <table class="tbl">
+    <tr><th>Що</th><th>Деталі</th><th>Обов'язково?</th></tr>
+    <tr><td><b>Плата STM32F411</b></td><td>WeAct <b>Black Pill</b> (STM32F411CEU6)</td><td>так</td></tr>
+    <tr><td><b>Програматор ST-Link V2</b></td><td>для заливання й налагодження просто з STM32CubeIDE (кнопка <b>Debug</b>/<b>Run</b>)</td><td>так</td></tr>
+    <tr><td>USB-TTL перехідник</td><td>CP2102/CH340 — для виводу <code class="inl">printf</code> через <b>USART1</b> (PA9/PA10), Serial Monitor CubeIDE не потрібен</td><td>так</td></tr>
+    <tr><td>Той самий дільник LDR + 10 кОм, LED + 220–330 Ом</td><td>ідентичний схемі частини А</td><td>так</td></tr>
+  </table>
+  <div class="chip c-task">Створення проєкту</div>
+  <div class="task">
+  <b>1.</b> <b>File → New → STM32 Project</b>, у вкладці <b>Board Selector</b> знайди <code class="inl">STM32F411CE</code> (або <b>MCU Selector</b>, якщо працюєш без конкретної плати з бази CubeMX).<br>
+  <b>2.</b> Назва проєкту: <code class="inl">adc_lab_stm32</code>. Toolchain — <b>STM32CubeIDE</b> (обирається автоматично).<br>
+  <b>3.</b> Відкриється граф. редактор <b>Pinout &amp; Configuration</b> — саме тут ми й налаштуємо АЦП, LED та UART у наступних кроках.<br>
+  <b>4.</b> У вкладці <b>Clock Configuration</b> лишаємо запропоновані CubeMX значення за замовчуванням — для цієї практики точна частота ядра не критична.
+  </div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Пінаут і схема — STM32F411</span></div>
+  <div class="wire">  3V3 ───[ LDR фоторезистор ]───┬─── PA0 (ADC1_IN0)
+                                 │
+                            [ 10 кОм ]
+                                 │
+                                GND
+
+  PB0 ──[220Ω]──▶|── GND          LED  (сигналізатор темряви)
+
+  USB-TTL:  TX──PA10(RX1)   RX──PA9(TX1)   GND──GND     (лише для printf-монітора)</div>
+  <table class="tbl">
+    <tr><th>Вивід STM32F411</th><th>Куди йде</th><th>У CubeMX</th></tr>
+    <tr><td><code class="inl">PA0</code></td><td>вузол дільника (LDR + 10 кОм)</td><td>Analog → <b>ADC1_IN0</b></td></tr>
+    <tr><td><code class="inl">PB0</code></td><td>через 220 Ом → анод LED, катод → <code class="inl">GND</code></td><td>GPIO_Output</td></tr>
+    <tr><td><code class="inl">PA9 / PA10</code></td><td>USB-TTL перехідник (TX/RX навхрест)</td><td>USART1 → Asynchronous</td></tr>
+    <tr><td><code class="inl">3V3 / GND</code></td><td>живлення макетки</td><td>—</td></tr>
+  </table>
+</div>
+
+<!-- ===================== 12 STM32F411: CUBEMX ADC + UART ===================== -->
+<div class="band"><div class="num">12</div>
+  <div class="ttl">Налаштування ADC1 та UART1 у CubeMX<small>ГРАФІЧНИЙ КОНФІГУРАТОР ЗАМІСТЬ CMakeLists.txt</small></div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Крок за кроком у Pinout &amp; Configuration</span></div>
+  <div class="chip c-task">1. Увімкнути ADC1 на PA0</div>
+  <div class="task">У дереві зліва: <b>Analog → ADC1</b> → онови чекбокс <code class="inl">IN0</code>. Пін <code class="inl">PA0</code> на графічній схемі плати
+  автоматично підсвітиться як <code class="inl">ADC1_IN0</code>.</div>
+  <div class="chip c-task">2. Параметри ADC1 (вкладка Configuration → ADC1)</div>
+  <div class="task">
+  <b>Resolution:</b> <code class="inl">12 bits</code> (той самий діапазон 0–4095, що й на ESP32).<br>
+  <b>Data Alignment:</b> <code class="inl">Right alignment</code>.<br>
+  <b>Continuous Conversion Mode:</b> <code class="inl">Disabled</code> — читаємо по запиту (аналог <code class="inl">adc_oneshot_read()</code>), а не в фоні.<br>
+  <b>Scan Conversion Mode:</b> <code class="inl">Disabled</code> — у нас лише один канал.<br>
+  У розділі <b>IN0 → Sampling Time</b> постав <code class="inl">112 Cycles</code> (компроміс швидкість/точність; довший час вибірки — точніше, але повільніше).
+  </div>
+  <div class="chip c-task">3. GPIO для LED</div>
+  <div class="task">На графічній схемі плати клацни <code class="inl">PB0</code> → обери режим <code class="inl">GPIO_Output</code>. У вкладці <b>GPIO</b> можна одразу
+  задати зручне ім'я користувача (User Label) <code class="inl">LED_PIN</code>.</div>
+  <div class="chip c-task">4. USART1 для printf-монітора</div>
+  <div class="task">У дереві: <b>Connectivity → USART1</b> → Mode: <code class="inl">Asynchronous</code>. CubeMX сам призначить <code class="inl">PA9 (TX)</code> /
+  <code class="inl">PA10 (RX)</code>. Baud Rate постав <code class="inl">115200</code> у вкладці Configuration.</div>
+  <div class="chip c-task">5. Генерація коду</div>
+  <div class="task">У вкладці <b>Project Manager → Project</b> переконайся, що Toolchain / IDE = <code class="inl">STM32CubeIDE</code>. Натисни <b>Device Configuration
+  Tool Code Generate</b> (жовта шестерінка) — CubeMX створить/оновить <code class="inl">Core/Src/main.c</code> з готовими функціями
+  <code class="inl">MX_ADC1_Init()</code>, <code class="inl">MX_GPIO_Init()</code>, <code class="inl">MX_USART1_UART_Init()</code>.</div>
+  <div class="watch"><b>Головна різниця з ESP-IDF:</b> там ми писали конфігурацію періферії руками через структури <code class="inl">adc_oneshot_chan_cfg_t</code> у коді.
+  Тут ту саму інформацію (розрядність, канал, режим) задаємо <b>графічно</b> в CubeMX, а <code class="inl">.ioc</code>-файл і згенерований <code class="inl">main.c</code>
+  зберігають цю конфігурацію за тебе. Логіку (що робити зі значенням) ти, як і раніше, дописуєш сам — між коментарями
+  <code class="inl">/* USER CODE BEGIN */</code> … <code class="inl">/* USER CODE END */</code>, щоб повторна генерація коду не затерла твої зміни.</div>
+</div>
+
+<!-- ===================== 13 STM32F411: ПЕРШЕ ЧИТАННЯ + PRINTF ===================== -->
+<div class="band"><div class="num">13</div>
+  <div class="ttl">Перше читання ADC + printf через UART<small>HAL_ADC_Start / PollForConversion / GetValue</small></div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок Б1</span><span class="stitle">Сире значення АЦП і вивід у монітор</span><span class="timep">⏱ 15 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Дописати в <code class="inl">main.c</code> (в область <code class="inl">USER CODE BEGIN WHILE</code>) читання АЦП і надрукувати число через
+  <code class="inl">printf</code>, переадресований на UART1.</p>
+  <div class="chip c-code">Код · Core/Src/main.c</div>
+  <pre class="code"><span class="cm">/* USER CODE BEGIN WHILE */</span>
+while (1)
+{
+    HAL_ADC_Start(&hadc1);                          <span class="cm">// запускаємо одне перетворення</span>
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY); <span class="cm">// чекаємо завершення (дискретизація + квантування)</span>
+    uint32_t raw = HAL_ADC_GetValue(&hadc1);         <span class="cm">// кодування: читаємо готове число 0-4095</span>
+
+    printf("Сире значення: %lu\r\n", raw);
+
+    HAL_Delay(200);                                   <span class="cm">// тимчасово: просто щоб не заливати монітор</span>
+    <span class="cm">/* USER CODE END WHILE */</span>
+
+    <span class="cm">/* USER CODE BEGIN 3 */</span>
+}
+<span class="cm">/* USER CODE END 3 */</span></pre>
+  <div class="chip c-note">printf сам по собі нічого нікуди не друкує — потрібен ретаргетинг</div>
+  <div class="note">На відміну від ESP-IDF, де <code class="inl">ESP_LOGI()</code> вже налаштований на UART, у STM32-проєкті CubeIDE стандартний <code class="inl">printf()</code>
+  за замовчуванням нікуди нічого не виводить. Треба один раз перевизначити системну функцію <code class="inl">_write()</code> (файл <code class="inl">Core/Src/syscalls.c</code>),
+  щоб вона передавала байти в UART1:</div>
+  <pre class="code"><span class="cm">// Core/Src/syscalls.c — додай перед __attribute__((weak)) int _write(...)</span>
+#include "usart.h"                     <span class="cm">// дає доступ до extern-змінної huart1</span>
+
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, HAL_MAX_DELAY); <span class="cm">// шлемо байти в UART1</span>
+    return len;
+}</pre>
+  <div class="chip c-task">Підключення монітора</div>
+  <div class="task">Устав USB-TTL перехідник: <code class="inl">TX перехідника → PA10 (RX1)</code>, <code class="inl">RX перехідника → PA9 (TX1)</code>,
+  <code class="inl">GND → GND</code>. Відкрий будь-який термінал (вбудований у CubeIDE <b>Window → Show View → Terminal</b>, або PuTTY/Tera Term) на порту USB-TTL,
+  115200 бод.</div>
+  <div class="chip c-watch">Що спостерігаємо</div>
+  <div class="watch">У світлій кімнаті число велике (ближче до 4095), якщо прикрити датчик рукою — падає (ближче до 0) — та сама поведінка, що й на ESP32 у Кроці 1
+  частини А.</div>
+</div>
+
+<!-- ===================== 14 STM32F411: КАЛІБРУВАННЯ АЦП ===================== -->
+<div class="band"><div class="num">14</div>
+  <div class="ttl">Самокалібрування АЦП STM32<small>HAL_ADCEx_Calibration_Start() · VREF+ = VDD</small></div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок Б2</span><span class="stitle">Калібрування перед першим використанням АЦП</span><span class="timep">⏱ 10 хв</span></div>
+  <div class="chip c-code">Код · Core/Src/main.c (перед циклом while)</div>
+  <pre class="code"><span class="cm">/* USER CODE BEGIN 2 */</span>
+HAL_ADCEx_Calibration_Start(&hadc1);   <span class="cm">// самокалібрування АЦП — виконати ОДИН РАЗ перед першим HAL_ADC_Start()</span>
+<span class="cm">/* USER CODE END 2 */</span></pre>
+  <div class="chip c-why">Чим це відрізняється від eFuse-калібрування ESP32</div>
+  <div class="why">На <b>ESP32</b> калібрувальні коефіцієнти для кожного конкретного чипа записані на заводі в <b>eFuse</b> (одноразово програмована пам'ять) — програма
+  лише зчитує їх через <code class="inl">adc_cali_create_scheme_curve_fitting()</code>. На <b>STM32</b> механізм інший: <code class="inl">HAL_ADCEx_Calibration_Start()</code>
+  запускає <b>внутрішню самодіагностику АЦП просто зараз</b>, яка компенсує зсув нуля (offset) конкретного вимірювального тракту в поточних умовах (температура,
+  напруга живлення). Це не заміна фізичної точності — це усунення систематичного зміщення показів прямо перед стартом роботи.</div>
+  <div class="chip c-note">Чому на STM32 не треба обирати атенюацію</div>
+  <div class="note">На платі Black Pill вивід <code class="inl">VREF+</code> АЦП <b>з'єднаний з VDD (3.3В)</b> напряму на платі, тому весь діапазон 0–3.3В АЦП читає
+  <b>нативно</b>, без додаткового підсилення/послаблення входу. Саме тому в CubeMX немає налаштування, аналогічного <code class="inl">ADC_ATTEN_DB_12</code> з
+  ESP-IDF, — весь трюк з атенюацією на ESP32 існував лише тому, що його внутрішній АЦП фізично обмежений діапазоном ~0–1.1В.</div>
+  <div class="chip c-code">Переведення у вольти (формула, аналог "наївної" з частини А)</div>
+  <pre class="code"><span class="cm">float voltage = (raw / 4095.0f) * 3.3f;   // VREF+ = VDD = 3.3В на Black Pill</span>
+printf("raw=%lu   voltage=%.3f V\r\n", raw, voltage);</pre>
+</div>
+
+<!-- ===================== 15 STM32F411: ОВЕРСЕМПЛІНГ + ФІНАЛ ===================== -->
+<div class="band"><div class="num">15</div>
+  <div class="ttl">Оверсемплінг і фінал: сигналізатор темряви<small>HAL_GetTick() · ГІСТЕРЕЗИС · GPIO_WritePin</small></div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="sbadge">Крок Б3</span><span class="stitle">💡 Повний код: неблокуючий сигналізатор темряви (STM32)</span><span class="timep">⏱ 20 хв</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Той самий алгоритм, що у Кроці 7 частини А: оверсемплінг проти шуму + гістерезис проти мерехтіння, лише замість <code class="inl">esp_timer_get_time()</code>
+  використовуємо <code class="inl">HAL_GetTick()</code> (мілісекунди від старту плати).</p>
+  <div class="chip c-code">Код · Core/Src/main.c</div>
+  <pre class="code"><span class="cm">/* USER CODE BEGIN PV */</span>
+#define SAMPLES            16      <span class="cm">// оверсемплінг: скільки замірів усереднюємо</span>
+#define THRESHOLD_ON_RAW   1500    <span class="cm">// стає темно нижче цього рівня</span>
+#define THRESHOLD_OFF_RAW  1800    <span class="cm">// вважаємо "знову світло" вище цього рівня</span>
+#define SAMPLE_PERIOD_MS   50      <span class="cm">// період дискретизації, мс</span>
+
+static uint8_t led_on = 0;         <span class="cm">// офіційний, підтверджений гістерезисом стан</span>
+static uint32_t last_sample = 0;   <span class="cm">// мітка часу останнього виміру (мс)</span>
+<span class="cm">/* USER CODE END PV */</span>
+
+<span class="cm">/* USER CODE BEGIN 0 */</span>
+static uint32_t read_averaged(void)                 <span class="cm">// оверсемплінг проти шуму</span>
+{
+    uint32_t sum = 0;
+    for (int i = 0; i < SAMPLES; i++) {
+        HAL_ADC_Start(&hadc1);
+        HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+        sum += HAL_ADC_GetValue(&hadc1);
+    }
+    return sum / SAMPLES;
+}
+<span class="cm">/* USER CODE END 0 */</span>
+
+<span class="cm">/* USER CODE BEGIN WHILE */</span>
+while (1)
+{
+    uint32_t now = HAL_GetTick();
+
+    if (now - last_sample >= SAMPLE_PERIOD_MS) {     <span class="cm">// неблокуюча дискретизація за розкладом</span>
+        last_sample = now;
+
+        uint32_t level = read_averaged();            <span class="cm">// квантоване, усереднене значення освітленості</span>
+
+        <span class="cm">// --- гістерезис: два різні пороги замість одного ---</span>
+        if (!led_on && level < THRESHOLD_ON_RAW) {
+            led_on = 1;                               <span class="ok">// стало темно → вмикаємо</span>
+        } else if (led_on && level > THRESHOLD_OFF_RAW) {
+            led_on = 0;                                <span class="ok">// стало досить світло → вимикаємо</span>
+        }
+        HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+        float voltage = (level / 4095.0f) * 3.3f;
+        printf("level=%4lu (%.3f V)   led=%s\r\n", level, voltage, led_on ? "ON" : "off");
+    }
+    <span class="cm">/* USER CODE END WHILE */</span>
+
+    <span class="cm">/* USER CODE BEGIN 3 */</span>
+}
+<span class="cm">/* USER CODE END 3 */</span></pre>
+  <div class="chip c-watch">⚠️ Часті помилки монтажу і збірки (з реального налагодження)</div>
+  <div class="watch">
+  <b>① Забуто виклик <code class="inl">HAL_ADCEx_Calibration_Start()</code> перед циклом</b> — покази будуть постійно трохи зміщені відносно реальної напруги.<br>
+  <b>② <code class="inl">LED_PIN_Pin</code> / <code class="inl">LED_PIN_GPIO_Port</code> не знайдено компілятором</b> — ці імена генеруються лише якщо в CubeMX задано
+  <b>User Label</b> для піна (Крок 11.3); без нього треба писати <code class="inl">GPIOB, GPIO_PIN_0</code> напряму.<br>
+  <b>③ printf «мовчить»</b> — переконайся, що <code class="inl">_write()</code> у <code class="inl">syscalls.c</code> справді перевизначений (Крок 12) і що в
+  налаштуваннях проєкту увімкнено <b>Use float with printf</b> (Project → Properties → C/C++ Build → Settings → MCU Settings), інакше <code class="inl">%.3f</code>
+  друкуватиме сміття або нулі.<br>
+  <b>④ Дільник переплутано місцями</b> — та сама помилка, що й у частині А: перевір мультиметром, що на світлі напруга на <code class="inl">PA0</code> зростає.</div>
+  <div class="chip c-why">Що спільне, а що відрізняється порівняно з ESP-IDF</div>
+  <div class="why"><b>Спільне:</b> сама структура алгоритму — оверсемплінг, гістерезис, неблокуюча дискретизація за міткою часу — <b>жодних змін</b> у логіці.
+  <b>Відрізняється:</b> джерело мітки часу (<code class="inl">HAL_GetTick()</code> замість <code class="inl">esp_timer_get_time()</code>, мілісекунди замість
+  мікросекунд), спосіб читання АЦП (<code class="inl">HAL_ADC_Start/PollForConversion/GetValue</code> замість одного <code class="inl">adc_oneshot_read()</code>),
+  і те, що конфігурація периферії задається графічно в CubeMX, а не текстом у коді.</div>
+</div>
+
+<div class="card q">
+  <div class="slidehd"><span class="stitle">✅ Чек-лист частини Б (STM32F411, STM32CubeIDE)</span></div>
+  <div class="why">
+  ① Пінаут у CubeMX: <code class="inl">PA0 = ADC1_IN0</code>, <code class="inl">PB0 = GPIO_Output</code> (з User Label), <code class="inl">USART1</code> на PA9/PA10.<br>
+  ② ADC1: <code class="inl">Resolution = 12 bits</code>, <code class="inl">Continuous Conversion Mode = Disabled</code>, sampling time не менше 112 циклів.<br>
+  ③ <code class="inl">HAL_ADCEx_Calibration_Start(&amp;hadc1)</code> викликаний <b>один раз</b> перед першим <code class="inl">HAL_ADC_Start()</code>.<br>
+  ④ <code class="inl">printf</code> переадресований на UART1 через перевизначення <code class="inl">_write()</code> у <code class="inl">syscalls.c</code>.<br>
+  ⑤ Формула у вольти ділить на <b>4095</b> (12-біт) і множить на <b>3.3</b> — бо <code class="inl">VREF+</code> зʼєднаний з VDD на цій платі.<br>
+  ⑥ Весь код-логіка дописаний <b>між</b> <code class="inl">/* USER CODE BEGIN */</code> і <code class="inl">/* USER CODE END */</code> — інакше повторна генерація
+  коду з CubeMX його затре.<br>
+  ⑦ Оверсемплінг і гістерезис — ідентичні за принципом до частини А; змінюються лише API-виклики під конкретну платформу.
+  </div>
+</div>
+</div>
+
+<!-- ===================== 16 STM32F411: ТЕРМІСТОР NTC ===================== -->
+<div class="sec">
+<div class="band"><div class="num">16</div>
+  <div class="ttl">Термістор NTC на STM32F411<small>ДРУГИЙ КАНАЛ ADC1 · STM32CubeIDE · CubeMX</small></div>
+</div>
+<div class="lead">Той самий термістор, що й у розділі 9 для ESP32, тепер на STM32F411. Додаємо другий аналоговий канал у CubeMX — плата читатиме LDR і NTC одночасно, як і на ESP32.</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">Дільник напруги з NTC — ще один канал ADC1 у CubeMX</span></div>
+  <p class="body">Схема — той самий дільник напруги: <b>3V3 → NTC → (вузол з ADC-піном) → резистор 10 кОм → GND.</b> Термістор не полярний — орієнтація виводів
+  значення не має.</p>
+  <div class="wire">  3V3 ───[ NTC термістор ]───┬─── PA1 (ADC1_IN1)
+                               │
+                          [ 10 кОм ]
+                               │
+                              GND</div>
+  <table class="tbl">
+    <tr><th>Вивід STM32F411</th><th>Куди йде</th><th>У CubeMX</th></tr>
+    <tr><td><code class="inl">PA1</code></td><td>вузол дільника (NTC + 10 кОм)</td><td>Analog → <b>ADC1_IN1</b> (окремий від LDR на PA0/IN0)</td></tr>
+  </table>
+  <div class="chip c-task">Що змінити в CubeMX</div>
+  <div class="task">У дереві <b>Analog → ADC1</b> онови ще один чекбокс — <code class="inl">IN1</code>. Пін <code class="inl">PA1</code> підсвітиться як
+  <code class="inl">ADC1_IN1</code>. У вкладці <b>Parameter Settings</b> перейди в режим <b>Scan Conversion Mode = Enabled</b> (тепер каналів два) і у списку
+  <b>Rank</b> впорядкуй, який канал читається першим (наприклад, IN0 = Rank 1, IN1 = Rank 2). Натисни <b>Generate Code</b>, щоб CubeMX оновив
+  <code class="inl">MX_ADC1_Init()</code>.</div>
+  <div class="watch"><b>Навіщо Scan Mode.</b> Поки був один канал (лише LDR), <code class="inl">Scan Conversion Mode = Disabled</code> було ок. Із двома каналами
+  на одному АЦП потрібен <b>сканувальний режим</b>: HAL по черзі перемикає АЦП між IN0 і IN1 за порядком Rank, і кожен виклик <code class="inl">HAL_ADC_Start()</code>
+  + <code class="inl">HAL_ADC_PollForConversion()</code> віддає значення <b>наступного</b> каналу в черзі.</div>
+</div>
+
+<div class="card">
+  <div class="slidehd"><span class="stitle">💡 Код: читання двох каналів + переведення NTC у температуру</span></div>
+  <div class="chip c-goal">Мета</div>
+  <p class="body">Прочитати обидва канали по черзі (LDR і NTC), і для NTC застосувати те саме рівняння Стейнхарта-Харта, що й на ESP32 — формула фізики не
+  залежить від платформи.</p>
+  <div class="chip c-code">Код · Core/Src/main.c</div>
+  <pre class="code"><span class="cm">/* USER CODE BEGIN 0 */</span>
+#include &lt;math.h&gt;
+
+const float SERIES_R  = 10000.0f;
+const float NOMINAL_R = 10000.0f;
+const float NOMINAL_T = 25.0f;
+const float B_COEFF   = 3950.0f;
+
+static float raw_to_temperature_c(uint32_t raw)          <span class="cm">// та сама формула, що й на ESP32</span>
+{
+    float r = SERIES_R * (4095.0f / raw - 1.0f);
+    float steinhart = r / NOMINAL_R;
+    steinhart = logf(steinhart);
+    steinhart /= B_COEFF;
+    steinhart += 1.0f / (NOMINAL_T + 273.15f);
+    steinhart = 1.0f / steinhart;
+    return steinhart - 273.15f;
+}
+<span class="cm">/* USER CODE END 0 */</span>
+
+<span class="cm">/* USER CODE BEGIN WHILE */</span>
+while (1)
+{
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    uint32_t ldr_raw = HAL_ADC_GetValue(&hadc1);          <span class="cm">// Rank 1 = IN0 (PA0, LDR)</span>
+
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    uint32_t ntc_raw = HAL_ADC_GetValue(&hadc1);          <span class="cm">// Rank 2 = IN1 (PA1, NTC)</span>
+
+    float temp_c = raw_to_temperature_c(ntc_raw);
+
+    printf("ldr=%4lu   ntc=%4lu   temperature=%.2f C\r\n", ldr_raw, ntc_raw, temp_c);
+
+    HAL_Delay(500);                                        <span class="cm">// температура міняється повільно — 2 Гц достатньо</span>
+    <span class="cm">/* USER CODE END WHILE */</span>
+
+    <span class="cm">/* USER CODE BEGIN 3 */</span>
+}
+<span class="cm">/* USER CODE END 3 */</span></pre>
+  <div class="chip c-note">Чому два послідовні виклики HAL_ADC_Start(), а не один</div>
+  <div class="note">У режимі <b>Scan Conversion Mode</b> кожен виклик <code class="inl">HAL_ADC_Start()</code> + <code class="inl">HAL_ADC_PollForConversion()</code>
+  просуває АЦП до <b>наступного каналу за Rank</b>. Перший виклик у цьому циклі повертає значення з <b>IN0</b> (LDR), другий — з <b>IN1</b> (NTC). Порядок точно
+  відповідає списку Rank, який задано в CubeMX.</div>
+  <div class="chip c-task">Експеримент: подихай на термістор або притисни пальцем</div>
+  <div class="task">Затисни NTC між пальцями (або подихай на нього) — і подивись, як зростає <code class="inl">temperature=...</code> у моніторі, з невеликою
+  затримкою через теплову інерцію корпусу термістора.</div>
+  <div class="chip c-why">Що спільне з ESP32, а що — ні</div>
+  <div class="why"><b>Формула Стейнхарта-Харта — ідентична</b> на обох платформах: фізика термістора не залежить від MCU. <b>Відрізняється</b> лише спосіб отримати
+  «сире» число з другого каналу: на ESP32 це окремий незалежний виклик <code class="inl">adc_oneshot_read(handle, NTC_CHANNEL, &amp;raw)</code> для будь-якого
+  каналу в будь-який момент; на STM32 у Scan Mode канали читаються <b>по черзі, у порядку Rank</b>, одним і тим самим <code class="inl">HAL_ADC_GetValue()</code>.</div>
+</div>
+
+<div class="card q">
+  <div class="slidehd"><span class="stitle">✅ Чек-лист: NTC на STM32</span></div>
+  <div class="why">
+  ① У CubeMX увімкнено <code class="inl">IN1</code> (<code class="inl">PA1</code>) на тому самому <code class="inl">ADC1</code>, що й LDR.<br>
+  ② <code class="inl">Scan Conversion Mode = Enabled</code>, порядок <b>Rank</b> заданий явно (IN0 → Rank 1, IN1 → Rank 2).<br>
+  ③ Код читає канали <b>у тому самому порядку</b>, що й Rank у CubeMX — інакше <code class="inl">ldr_raw</code> і <code class="inl">ntc_raw</code> поміняються місцями.<br>
+  ④ Формула Стейнхарта-Харта — та сама, що й на ESP32; змінюй лише <code class="inl">NOMINAL_R</code>, <code class="inl">NOMINAL_T</code>,
+  <code class="inl">B_COEFF</code> під даташит свого конкретного термістора.<br>
+  ⑤ Термістор не полярний — переплутати виводи неможливо, на відміну від LED.
+  </div>
+</div>
+</div>
+
+</body>
+</html>
