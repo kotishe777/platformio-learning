@@ -1,38 +1,59 @@
 /*
- * Module 3.2 hometask — ADC calibration: manual formula vs calibrated driver
+ * Module 3.3 hometask — PWM: one potentiometer controls LED brightness and DC motor speed
  * Board: ESP32-S3 DevKitC-1, framework ESP-IDF 5.5
- * Potentiometer 10k: 3V3 -> pot -> GND, wiper -> GPIO7 (ADC1_CH6)
- * ADC oneshot, 12 bit, attenuation 12 dB, read every 100 ms (average of 8)
- * U_manual = RAW * 3300 / 4095 mV, U_cali = adc_cali_raw_to_voltage()
- * Error(%) = (U_manual - U_cali) / U_cali * 100
- * Output: table in serial console, header repeated every 20 rows
+ * Pot: 3V3 -> 10k pot -> GND, wiper -> GPIO7 (ADC1_CH6)
+ * LED:   GPIO15 -> 220R -> LED -> GND, LEDC timer 0, 1 kHz, 10 bit
+ * Motor: GPIO16 -> 220R -> 2N2222A base (10k pull-down), emitter -> GND, collector -> motor,
+ *        flyback diode, separate 5V supply, common GND, LEDC timer 1, 20 kHz, 10 bit
+ * Separate timers, channels, pins and power: LED and motor do not affect each other
  */
 #include <cstdint>
-#include <cstdio>
 
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
+#include "driver/gpio.h"
+#include "driver/ledc.h"
 #include "esp_adc/adc_oneshot.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 struct Config {
-  static constexpr adc_unit_t     adcUnit        = ADC_UNIT_1;
-  static constexpr adc_channel_t  adcChannel     = ADC_CHANNEL_6;
-  static constexpr adc_atten_t    adcAtten       = ADC_ATTEN_DB_12;
-  static constexpr adc_bitwidth_t adcBitwidth    = ADC_BITWIDTH_12;
-  static constexpr uint32_t       vrefNominalMv  = 1100;
-  static constexpr float          vmaxMv         = 3300.0f;
-  static constexpr int            dmax           = 4095;
-  static constexpr uint32_t       samplesPerRead = 8;
-  static constexpr uint32_t       periodMs       = 100;
-  static constexpr uint32_t       rowsPerHeader  = 20;
+  static constexpr adc_unit_t       adcUnit        = ADC_UNIT_1;
+  static constexpr adc_channel_t    potChannel     = ADC_CHANNEL_6;
+  static constexpr adc_atten_t      adcAtten       = ADC_ATTEN_DB_12;
+  static constexpr int              adcMax         = 4095;
+  static constexpr uint32_t         samplesPerRead = 8;
+
+  static constexpr ledc_mode_t      speedMode      = LEDC_LOW_SPEED_MODE;
+  static constexpr uint32_t         resolutionBits = 10;
+  static constexpr ledc_timer_bit_t resolution     = static_cast<ledc_timer_bit_t>(resolutionBits);
+  static constexpr uint32_t         dutyMax        = (1u << resolutionBits) - 1;
+
+  static constexpr gpio_num_t       ledPin         = GPIO_NUM_15;
+  static constexpr ledc_timer_t     ledTimer       = LEDC_TIMER_0;
+  static constexpr ledc_channel_t   ledChannel     = LEDC_CHANNEL_0;
+  static constexpr uint32_t         ledFreqHz      = 1000;
+
+  static constexpr gpio_num_t       motorPin       = GPIO_NUM_16;
+  static constexpr ledc_timer_t     motorTimer     = LEDC_TIMER_1;
+  static constexpr ledc_channel_t   motorChannel   = LEDC_CHANNEL_1;
+  static constexpr uint32_t         motorFreqHz    = 20000;
+  static constexpr int              motorDeadband  = 100;
+  static constexpr uint32_t         motorMinDuty   = 300;
+
+  static constexpr uint32_t         dutyHysteresis = 4;
+  static constexpr uint32_t         periodMs       = 20;
+  static constexpr uint32_t         logEvery       = 10;
 };
 
-static_assert(Config::samplesPerRead > 0, "At least one sample per reading");
-static_assert(Config::rowsPerHeader > 0, "Header period must not be zero");
+static_assert(Config::ledFreqHz * (Config::dutyMax + 1) <= 80000000u, "LED PWM: frequency x resolution too high");
+static_assert(Config::motorFreqHz * (Config::dutyMax + 1) <= 80000000u, "Motor PWM: frequency x resolution too high");
+static_assert(Config::motorMinDuty < Config::dutyMax, "Motor min duty must be below max duty");
+static_assert(Config::motorDeadband < Config::adcMax, "Motor deadband must be inside ADC range");
+static_assert(Config::ledTimer != Config::motorTimer, "LED and motor must use different timers");
 
 namespace {
+
+constexpr const char* tag = "pwm";
 
 adc_oneshot_unit_handle_t initAdc() {
   adc_oneshot_unit_init_cfg_t unitCfg{};
@@ -44,20 +65,8 @@ adc_oneshot_unit_handle_t initAdc() {
 
   adc_oneshot_chan_cfg_t chanCfg{};
   chanCfg.atten    = Config::adcAtten;
-  chanCfg.bitwidth = Config::adcBitwidth;
-  ESP_ERROR_CHECK(adc_oneshot_config_channel(handle, Config::adcChannel, &chanCfg));
-  return handle;
-}
-
-adc_cali_handle_t initCalibration() {
-  adc_cali_curve_fitting_config_t caliCfg{};
-  caliCfg.unit_id  = Config::adcUnit;
-  caliCfg.chan     = Config::adcChannel;
-  caliCfg.atten    = Config::adcAtten;
-  caliCfg.bitwidth = Config::adcBitwidth;
-
-  adc_cali_handle_t handle = nullptr;
-  ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&caliCfg, &handle));
+  chanCfg.bitwidth = ADC_BITWIDTH_12;
+  ESP_ERROR_CHECK(adc_oneshot_config_channel(handle, Config::potChannel, &chanCfg));
   return handle;
 }
 
@@ -65,62 +74,103 @@ int readAverageRaw(adc_oneshot_unit_handle_t adc) {
   int32_t sum = 0;
   for (uint32_t i = 0; i < Config::samplesPerRead; ++i) {
     int raw = 0;
-    ESP_ERROR_CHECK(adc_oneshot_read(adc, Config::adcChannel, &raw));
+    ESP_ERROR_CHECK(adc_oneshot_read(adc, Config::potChannel, &raw));
     sum += raw;
   }
   return static_cast<int>(sum / static_cast<int32_t>(Config::samplesPerRead));
 }
 
-float manualMv(int raw) {
-  return static_cast<float>(raw) * Config::vmaxMv / static_cast<float>(Config::dmax);
+void initPwm(ledc_timer_t timer, uint32_t freqHz, ledc_channel_t channel, gpio_num_t pin) {
+  ledc_timer_config_t timerCfg{};
+  timerCfg.speed_mode      = Config::speedMode;
+  timerCfg.duty_resolution = Config::resolution;
+  timerCfg.timer_num       = timer;
+  timerCfg.freq_hz         = freqHz;
+  timerCfg.clk_cfg         = LEDC_AUTO_CLK;
+  ESP_ERROR_CHECK(ledc_timer_config(&timerCfg));
+
+  ledc_channel_config_t channelCfg{};
+  channelCfg.gpio_num   = pin;
+  channelCfg.speed_mode = Config::speedMode;
+  channelCfg.channel    = channel;
+  channelCfg.intr_type  = LEDC_INTR_DISABLE;
+  channelCfg.timer_sel  = timer;
+  channelCfg.duty       = 0;
+  channelCfg.hpoint     = 0;
+  ESP_ERROR_CHECK(ledc_channel_config(&channelCfg));
 }
 
-void printSettings() {
-  printf("\nADC settings\n");
-  printf("  Unit / channel : ADC1 / CH6 (GPIO7)\n");
-  printf("  Resolution     : 12 bit, RAW 0..%d\n", Config::dmax);
-  printf("  Attenuation    : 12 dB, about 0..3100 mV\n");
-  printf("  Vref nominal   : %u mV\n", static_cast<unsigned>(Config::vrefNominalMv));
-  printf("  Manual formula : U = RAW * %.0f / %d mV\n", Config::vmaxMv, Config::dmax);
-  printf("  Manual LSB     : %.3f mV\n", Config::vmaxMv / (Config::dmax + 1));
-  printf("  Calibration    : curve fitting (eFuse data)\n\n");
+uint32_t ledDutyFromRaw(int raw) {
+  return static_cast<uint32_t>(raw) * Config::dutyMax / Config::adcMax;
 }
 
-void printHeader() {
-  printf("%5s %14s %12s %10s\n", "RAW", "U_manual(mV)", "U_cali(mV)", "Error(%)");
-  printf("--------------------------------------------\n");
+uint32_t motorDutyFromRaw(int raw) {
+  if (raw < Config::motorDeadband) {
+    return 0;
+  }
+  const uint32_t span = static_cast<uint32_t>(Config::adcMax - Config::motorDeadband);
+  const uint32_t pos  = static_cast<uint32_t>(raw - Config::motorDeadband);
+  return Config::motorMinDuty + pos * (Config::dutyMax - Config::motorMinDuty) / span;
 }
+
+uint32_t percent(uint32_t duty) {
+  return duty * 100 / Config::dutyMax;
+}
+
+class PwmChannel {
+ public:
+  explicit PwmChannel(ledc_channel_t channel) : channel_(channel) {}
+
+  void set(uint32_t duty) {
+    const uint32_t diff = duty > duty_ ? duty - duty_ : duty_ - duty;
+    const bool     edge = duty == 0 || duty == Config::dutyMax;
+    if (diff == 0 || (diff < Config::dutyHysteresis && !edge)) {
+      return;
+    }
+    ESP_ERROR_CHECK(ledc_set_duty(Config::speedMode, channel_, duty));
+    ESP_ERROR_CHECK(ledc_update_duty(Config::speedMode, channel_));
+    duty_ = duty;
+  }
+
+  uint32_t duty() const {
+    return duty_;
+  }
+
+ private:
+  ledc_channel_t channel_;
+  uint32_t       duty_ = 0;
+};
 
 }  // namespace
 
 extern "C" void app_main() {
-  const adc_oneshot_unit_handle_t adc  = initAdc();
-  const adc_cali_handle_t         cali = initCalibration();
+  const adc_oneshot_unit_handle_t adc = initAdc();
+  initPwm(Config::ledTimer, Config::ledFreqHz, Config::ledChannel, Config::ledPin);
+  initPwm(Config::motorTimer, Config::motorFreqHz, Config::motorChannel, Config::motorPin);
 
-  vTaskDelay(pdMS_TO_TICKS(2000));
-  printSettings();
+  PwmChannel led(Config::ledChannel);
+  PwmChannel motor(Config::motorChannel);
 
-  uint32_t   row      = 0;
+  ESP_LOGI(tag, "Ready: LED %u Hz, motor %u Hz, %u bit (duty 0..%u)",
+           static_cast<unsigned>(Config::ledFreqHz), static_cast<unsigned>(Config::motorFreqHz),
+           static_cast<unsigned>(Config::resolutionBits), static_cast<unsigned>(Config::dutyMax));
+
+  uint32_t   tick     = 0;
   TickType_t lastWake = xTaskGetTickCount();
 
   while (true) {
-    if (row % Config::rowsPerHeader == 0) {
-      printHeader();
+    const int raw = readAverageRaw(adc);
+
+    led.set(ledDutyFromRaw(raw));
+    motor.set(motorDutyFromRaw(raw));
+
+    if (++tick % Config::logEvery == 0) {
+      ESP_LOGI(tag, "pot=%4d | LED duty=%4u (%3u%%) | motor duty=%4u (%3u%%)",
+               raw,
+               static_cast<unsigned>(led.duty()), static_cast<unsigned>(percent(led.duty())),
+               static_cast<unsigned>(motor.duty()), static_cast<unsigned>(percent(motor.duty())));
     }
 
-    const int raw    = readAverageRaw(adc);
-    int       caliMv = 0;
-    ESP_ERROR_CHECK(adc_cali_raw_to_voltage(cali, raw, &caliMv));
-    const float manual = manualMv(raw);
-
-    if (caliMv > 0) {
-      const float error = (manual - caliMv) / caliMv * 100.0f;
-      printf("%5d %14.1f %12d %10.2f\n", raw, manual, caliMv, error);
-    } else {
-      printf("%5d %14.1f %12d %10s\n", raw, manual, caliMv, "n/a");
-    }
-
-    ++row;
     xTaskDelayUntil(&lastWake, pdMS_TO_TICKS(Config::periodMs));
   }
 }
