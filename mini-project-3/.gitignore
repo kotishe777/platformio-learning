@@ -1,6 +1,0 @@
-.pio/
-.vscode/
-sdkconfig
-sdkconfig.*
-!sdkconfig.defaults
-*.log
